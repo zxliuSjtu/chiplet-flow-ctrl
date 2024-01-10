@@ -1,0 +1,13 @@
+./build/X86_MESI_Two_Level/gem5.opt configs/deprecated/example/se.py \
+--cpu-type TimingSimpleCPU \
+--num-cpus=64 \
+--l1d_size=16kB \
+--l1i_size=16kB \
+--num-l2caches=4 \
+--l2_size=128kB \
+--num-dirs=4 \
+--mem-size=4096MB \
+--ruby \
+--network=garnet \
+--topology=Chiplets_Mesh \
+-c tests/test-progs/hello/bin/x86/linux/hello \
