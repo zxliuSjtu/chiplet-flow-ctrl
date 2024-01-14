@@ -85,7 +85,7 @@ class Chiplets_Mesh_garnetstandalone(SimpleTopology):
         num_interposer_router = num_bound_router
 
         # Compute other configurations:
-        # garnrt_standalone has no l2
+        # garnrt_standalone has no l2, so we config as a empty router
         num_l2_routers = 4
         num_cpus_per_chiplet = int(len(cpu_nodes) / num_cpu_chiplets)
         num_l2_mc_dma_chiplets = 8
