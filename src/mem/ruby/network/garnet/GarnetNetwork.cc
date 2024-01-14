@@ -43,6 +43,7 @@
 #include "mem/ruby/network/garnet/GarnetLink.hh"
 #include "mem/ruby/network/garnet/NetworkInterface.hh"
 #include "mem/ruby/network/garnet/NetworkLink.hh"
+#include "mem/ruby/network/garnet/OutputUnit.hh"
 #include "mem/ruby/network/garnet/Router.hh"
 #include "mem/ruby/system/RubySystem.hh"
 
@@ -90,7 +91,8 @@ GarnetNetwork::GarnetNetwork(const Params &p)
          i != p.routers.end(); ++i) {
         Router* router = safe_cast<Router*>(*i);
         m_routers.push_back(router);
-
+        //inform("router %s\n", router->get_id());
+        //inform("router outport %s\n", router->get_num_outports());
         // initialize the router's network pointers
         router->init_net_ptr(this);
     }
@@ -102,6 +104,30 @@ GarnetNetwork::GarnetNetwork(const Params &p)
         m_nis.push_back(ni);
         ni->init_net_ptr(this);
     }
+
+    // // record the bdry router and itpsr router pair by zxliu
+    // for (std::vector<BasicRouter*>::const_iterator i =  p.routers.begin();
+    //      i != p.routers.end(); ++i) {
+    //     Router* router = safe_cast<Router*>(*i);
+    //     // iterate all outport of this router
+    //     for (int outportIdx = 0; outportIdx <
+    //    router->get_num_outports() ; outportIdx++){
+    //         //find a interposer router
+    //         std::string PortDirectionName =
+    //    router->getPortDirectionName(router->
+    // getOutportDirection(outportIdx));
+    //         std::cout << PortDirectionName << std::endl;
+    //         inform("Garnet version %s\n", PortDirectionName);
+    //         if (PortDirectionName == "Up"){
+    //             //Itpsr_router2Bdry_router[router->get_id()] =
+    //             inform("vertical link id %s\n",
+    //     (router->getOutputUnit(outportIdx))->get_outlink_id());
+
+    //         }
+    //     }
+
+    // }
+
 
     // Print Garnet version
     inform("Garnet version %s\n", garnetVersion);

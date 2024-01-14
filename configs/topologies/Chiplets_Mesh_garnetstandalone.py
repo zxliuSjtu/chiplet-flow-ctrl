@@ -42,8 +42,8 @@ from m5.params import *
 # connected as separate chiplets via a interposer (mesh).
 
 
-class Chiplets_Mesh(SimpleTopology):
-    description = "Chiplets_Mesh"
+class Chiplets_Mesh_garnetstandalone(SimpleTopology):
+    description = "Chiplets_Mesh_garnetstandalone"
 
     def __init__(self, controllers):
         self.nodes = controllers
@@ -86,10 +86,10 @@ class Chiplets_Mesh(SimpleTopology):
 
         # Compute other configurations:
         # garnrt_standalone has no l2
-
+        num_l2_routers = 4
         num_cpus_per_chiplet = int(len(cpu_nodes) / num_cpu_chiplets)
-        num_l2_mc_dma_chiplets = len(l2_nodes) + len(mc_nodes) + len(dma_nodes)
-        num_chiplets = num_cpu_chiplets + num_l2_mc_dma_chiplets + 1  # (xbar)
+        num_l2_mc_dma_chiplets = 8
+        num_chiplets = num_cpu_chiplets + num_l2_mc_dma_chiplets  # (xbar)
 
         # Mesh rows and columns
         num_rows = int(math.sqrt(num_cpus_per_chiplet))
@@ -98,7 +98,7 @@ class Chiplets_Mesh(SimpleTopology):
 
         num_routers = (
             len(cpu_nodes)
-            + len(l2_nodes)
+            + num_l2_routers
             + len(mc_nodes)
             + len(dma_nodes)
             + num_interposer_router
@@ -109,7 +109,7 @@ class Chiplets_Mesh(SimpleTopology):
             "Configuration:\nNum CPU Chiplets = "
             + str(num_cpu_chiplets)
             + "\nNum L2 Chiplets = "
-            + str(len(l2_nodes))
+            + str(num_l2_routers)
             + "\nNum MC Chiplets = "
             + str(len(mc_nodes))
             + "\nNum DMA Chiplets = "
@@ -164,29 +164,20 @@ class Chiplets_Mesh(SimpleTopology):
             router_id += 1
 
         l2c_router_start_id = router_id
+
         # Connect each L2 to a router
-        for i, n in enumerate(l2_nodes):
-            routers[router_id].width = chiplet_link_width  # nominal flit size
-            ext_links.append(
-                ExtLink(
-                    link_id=link_count,
-                    ext_node=n,
-                    int_node=routers[router_id],
-                    latency=chiplet_link_latency,
-                    width=chiplet_link_width,
-                )
-            )
-            print_connection(
-                "L2",
-                n.version,
-                "Router",
-                router_id,
-                link_count,
-                chiplet_link_latency,
-                chiplet_link_width,
-            )
-            link_count += 1
-            router_id += 1
+        # for (i, n) in enumerate(l2_nodes):
+        #     routers[router_id].width = chiplet_link_width # nominal flit size
+        #     ext_links.append(ExtLink(link_id=link_count, ext_node=n,
+        #                             int_node=routers[router_id],
+        #                             latency = chiplet_link_latency,
+        #                             width = chiplet_link_width))
+        #     print_connection("L2", n.version, "Router", router_id, link_count,\
+        #                       chiplet_link_latency, chiplet_link_width)
+        #     link_count += 1
+        #     router_id += 1
+        # we dont need l2 in garntstdalone
+        router_id += num_l2_routers
 
         mcc_router_start_id = router_id
         # Connect the MC nodes to routers
@@ -930,8 +921,9 @@ class Chiplets_Mesh(SimpleTopology):
         # Router id of first L2 chiplet should be same as num_cpus
         assert l2c_router_start_id == len(cpu_nodes)
         ncc_router_id = l2c_router_start_id
-
-        xbar_id = num_routers - 1  # all connects to the last router
+        xbar_id = (
+            num_routers - num_l2_mc_dma_chiplets
+        )  # all connects to the last router
         # Chiplet to Itpsr
         for ncc in range(num_l2_mc_dma_chiplets):
             int_links.append(
@@ -986,7 +978,7 @@ class Chiplets_Mesh(SimpleTopology):
             link_count += 1
 
             ncc_router_id += 1
-            xbar_id -= 1
+            xbar_id += 1
 
         # At the end ncc_router_id should be same as last chiplet, namely xbar
         # assert(ncc_router_id == xbar_id)

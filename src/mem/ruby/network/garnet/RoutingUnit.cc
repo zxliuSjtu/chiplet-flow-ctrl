@@ -204,6 +204,64 @@ RoutingUnit::outportCompute(RouteInfo route, int inport,
 // XY routing implemented using port directions
 // Only for reference purpose in a Mesh
 // By default Garnet uses the routing table
+// int
+// RoutingUnit::outportComputeXY(RouteInfo route,
+//                               int inport,
+//                               PortDirection inport_dirn)
+// {
+//     PortDirection outport_dirn = "Unknown";
+
+//     [[maybe_unused]] int num_rows = m_router->get_net_ptr()->getNumRows();
+//     int num_cols = m_router->get_net_ptr()->getNumCols();
+//     assert(num_rows > 0 && num_cols > 0);
+
+//     int my_id = m_router->get_id();
+//     int my_x = my_id % num_cols;
+//     int my_y = my_id / num_cols;
+
+//     int dest_id = route.dest_router;
+//     int dest_x = dest_id % num_cols;
+//     int dest_y = dest_id / num_cols;
+
+//     int x_hops = abs(dest_x - my_x);
+//     int y_hops = abs(dest_y - my_y);
+
+//     bool x_dirn = (dest_x >= my_x);
+//     bool y_dirn = (dest_y >= my_y);
+
+//     // already checked that in outportCompute() function
+//     assert(!(x_hops == 0 && y_hops == 0));
+
+//     if (x_hops > 0) {
+//         if (x_dirn) {
+//             assert(inport_dirn == "Local" || inport_dirn == "West");
+//             outport_dirn = "East";
+//         } else {
+//             assert(inport_dirn == "Local" || inport_dirn == "East");
+//             outport_dirn = "West";
+//         }
+//     } else if (y_hops > 0) {
+//         if (y_dirn) {
+//             // "Local" or "South" or "West" or "East"
+//             assert(inport_dirn != "North");
+//             outport_dirn = "North";
+//         } else {
+//             // "Local" or "North" or "West" or "East"
+//             assert(inport_dirn != "South");
+//             outport_dirn = "South";
+//         }
+//     } else {
+//         // x_hops == 0 and y_hops == 0
+//         // this is not possible
+//         // already checked that in outportCompute() function
+//         panic("x_hops == y_hops == 0");
+//     }
+
+//     return m_outports_dirn2idx[outport_dirn];
+// }
+
+//A new XY routing for 4x4 mesh chiplets
+//and 4x4 interposer id is fixed for simple
 int
 RoutingUnit::outportComputeXY(RouteInfo route,
                               int inport,
@@ -211,15 +269,184 @@ RoutingUnit::outportComputeXY(RouteInfo route,
 {
     PortDirection outport_dirn = "Unknown";
 
-    [[maybe_unused]] int num_rows = m_router->get_net_ptr()->getNumRows();
-    int num_cols = m_router->get_net_ptr()->getNumCols();
+    std::cout << std::endl;
+    std::cout << "start calling routingunit" << std::endl;
+    std::cout << "at router id " << m_router->get_id() << std::endl;
+    std::cout << "the inport dirn is "<< inport_dirn << std::endl;
+    std::cout << "dest router id is "<< route.dest_router << std::endl;
+    //std::cout << "total router num is "<< \
+    //m_router->get_net_ptr()->getNumRouters() << std::endl;
+
+
+
+    //[[maybe_unused]] int num_rows = m_router->get_net_ptr()->getNumRows();
+    // int num_cols = m_router->get_net_ptr()->getNumCols();
+    int num_cols = m_router->get_net_ptr()->getNumRows();
+    int num_rows = m_router->get_net_ptr()->getNumRows();
+    //std::cout << "COLS & ROWS" << num_cols << " "<< num_rows << std::endl;
     assert(num_rows > 0 && num_cols > 0);
 
+    // assume the num of chiplet router is C x N x N
+    // assume the num of interposer router is I x I
+    // assume the num of L2, MC, DMA router is K
+    // the ID order is C x N x N + K + I x I
+    // which means the chiplet routers are first (C x N x N)
+    // and the interposer router are last (I x I)
+
+    // at this time : C = N = I = 4, K = 8
+    // so chiplet router (0 ~ 63)
+    // L2, MC, DMA router (64 ~ 71)
+    // so interposer router (72 ~ 87)
+    int num_chiplets = 4;
+    int total_num_router = m_router->get_net_ptr()->getNumRouters();
     int my_id = m_router->get_id();
-    int my_x = my_id % num_cols;
-    int my_y = my_id / num_cols;
+    int my_chiplet_id = my_id / (num_cols*num_rows);
 
     int dest_id = route.dest_router;
+    int dest_chiplet_id = dest_id / (num_cols*num_rows);
+
+    // std::cout << (num_rows) << std::endl;
+    // std::cout << (num_cols) << std::endl;
+    // std::cout << (num_cols * num_rows) << std::endl;
+    // std::cout << (total_num_router - (num_cols * num_rows)) << std::endl;
+    // std::cout << total_num_router - (num_cols * num_rows) << std::endl;
+    // CASE1: interposer router to (interposer/chiplet/other) router
+    // check if this is interposer router (72 ~ 87)
+    if (my_id >= (total_num_router - (num_cols * num_rows))){
+        std::cout << "enter CASE1: interposer router to \
+        (interposer/chiplet/other) router " << std::endl;
+        // the dst router is also interposer router
+        // deprecated impossible
+        // if (dest_id >= (total_num_router - (num_cols*num_rows))){
+        //     //transfer to onchip id
+        //     my_id = my_id - (total_num_router - (num_cols*num_rows));
+        //     dest_id = dest_id - (total_num_router - (num_cols*num_rows));
+        // }
+
+        // the dst router is chiplet router
+        if (dest_id < (num_chiplets * num_cols * num_rows)){
+
+            //find the dest's nearest br's interposer router
+            int dest_onchip_id = dest_id % (num_cols*num_rows);
+            int dest_onchip_x = dest_onchip_id % num_cols;
+            int dest_onchip_y = dest_onchip_id / num_cols;
+
+            int halfCol = num_cols / 2;
+            int halfRow = num_rows / 2;
+
+            int offset = 0 ;
+
+            if (dest_onchip_x < halfCol && dest_onchip_y < halfRow){
+                offset = 0;}
+            else if (dest_onchip_x >= halfCol && dest_onchip_y < halfRow){
+                offset = 1;}
+            else if (dest_onchip_x < halfCol && dest_onchip_y >= halfRow){
+                offset = 4;}
+            else {
+                offset = 5;}
+
+            // chosed interposer to send "Up"
+            dest_id = offset + 71 + (dest_onchip_id % halfCol) * 2 + \
+                (dest_onchip_id / halfRow) * 8;
+
+            if (my_id == dest_id){
+                std::cout << "return outport dirn: Up" << std::endl;
+                outport_dirn = "Up";
+                return m_outports_dirn2idx[outport_dirn];
+            }
+            else{
+                //transfer to onchip id
+                my_id = my_id - (total_num_router - (num_cols*num_rows));
+                dest_id = dest_id - (total_num_router - (num_cols*num_rows));
+            }
+
+        }
+        // the dst router is other router(L2,MC..)
+        else{
+            // assume the map is 16 offset
+            // for example L2 router 71 connect to interposer 87
+            // this needs to be sured at Chiplets_Mesh.py
+            my_id = my_id - (total_num_router - (num_cols*num_rows));
+            dest_id = dest_id - (total_num_router - (num_cols*num_rows)) + 16;
+
+            if (my_id == dest_id){
+                std::cout << "return outport dirn: memUp" << std::endl;
+                outport_dirn = "memUp";
+                return m_outports_dirn2idx[outport_dirn];
+            }
+        }
+    }
+    // CASE2: chiplet router to (chiplet/other) router
+    // check if this is chiplet router
+    else if (my_id < (num_chiplets * num_cols * num_rows)){
+        std::cout << "enter CASE2: chiplet router to (chiplet/other) \
+            router " << std::endl;
+        // this is chiplet router and dest is another chiplet router
+        if (dest_id != my_id){
+            // this router and dst router are in different chiplet (L2/MC)
+            // change the dst to nearest boundary router
+            if (my_chiplet_id != dest_chiplet_id){
+                //calculate on chip xy
+                int my_onchip_id = my_id % (num_cols*num_rows);
+                int my_onchip_x = my_onchip_id % num_cols;
+                int my_onchip_y = my_onchip_id / num_cols;
+                int nearset_onchip_br_id = 0 ;
+
+                //find the nearest br
+                int halfCol = num_cols / 2;
+                int halfRow = num_rows / 2;
+
+
+                if (my_onchip_x < halfCol && my_onchip_y < halfRow)
+                    {nearset_onchip_br_id = 1;}
+                else if (my_onchip_x >= halfCol && my_onchip_y < halfRow)
+                    {nearset_onchip_br_id = 2;}
+                else if (my_onchip_x < halfCol && my_onchip_y >= halfRow)
+                    {nearset_onchip_br_id = 13;}
+                else {nearset_onchip_br_id = 14;}
+                assert(nearset_onchip_br_id != 0); //find successfully
+                //std::cout << nearset_onchip_br_id << std::endl;
+                //check if the nearest br is myself,
+                //then just send to interposer
+                if (nearset_onchip_br_id == my_onchip_id){
+                    std::cout << "return outport dirn: Down" << std::endl;
+                    outport_dirn = "Down";
+                    return m_outports_dirn2idx[outport_dirn];
+                    }
+                //transfer the dest_id to nearset_onchip_br_id
+                else{
+                    dest_id = nearset_onchip_br_id;
+                }
+
+                //transfer my_id to my_onchip_id
+                my_id = my_onchip_id;
+            }
+            // dest and src are in same chiplet
+            // just transfer to onchip id
+            else{
+                my_id = my_id - (my_chiplet_id * num_cols*num_rows);
+                dest_id = dest_id - (dest_chiplet_id * num_cols * num_rows);
+            }
+        }
+    }
+
+    //CASE3: other router to (chiplet router)
+    else{
+        std::cout << "enter CASE3: other router to \
+            (chiplet router) " << std::endl;
+        std::cout << "return outport dirn: memDown" << std::endl;
+        outport_dirn = "memDown";
+        return m_outports_dirn2idx[outport_dirn];
+    }
+
+
+    //std::cout << "the onchip src id is: "<< my_id <<std::endl;
+    //std::cout << "the onchip des id is: "<< dest_id <<std::endl;
+    // this is a XY routing for intra-chiplet
+    // which means src and dst are in same chiplet or interposer
+    // the input of this routing is onchip xy coordination
+    int my_x = my_id % num_cols;
+    int my_y = my_id / num_cols;
     int dest_x = dest_id % num_cols;
     int dest_y = dest_id / num_cols;
 
@@ -234,10 +461,14 @@ RoutingUnit::outportComputeXY(RouteInfo route,
 
     if (x_hops > 0) {
         if (x_dirn) {
-            assert(inport_dirn == "Local" || inport_dirn == "West");
+            assert(inport_dirn == "Local" || inport_dirn == "Up" \
+            || inport_dirn == "memUp" || inport_dirn == "Down" \
+            || inport_dirn == "memDown" || inport_dirn == "West");
             outport_dirn = "East";
         } else {
-            assert(inport_dirn == "Local" || inport_dirn == "East");
+            assert(inport_dirn == "Local" || inport_dirn == "Up" \
+            || inport_dirn == "memUp" || inport_dirn == "Down" \
+            || inport_dirn == "memDown" || inport_dirn == "East");
             outport_dirn = "West";
         }
     } else if (y_hops > 0) {
@@ -256,7 +487,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
         // already checked that in outportCompute() function
         panic("x_hops == y_hops == 0");
     }
-
+    std::cout << "return outport dirn:" << outport_dirn << std::endl;
     return m_outports_dirn2idx[outport_dirn];
 }
 

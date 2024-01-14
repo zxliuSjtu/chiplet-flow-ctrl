@@ -157,6 +157,11 @@ class GarnetNetwork : public Network
     void update_traffic_distribution(RouteInfo route);
     int getNextPacketID() { return m_next_packet_id++; }
 
+    //add to suppoet chiplet arch
+    bool addVerticalLinkPair ();
+    int getBdryRouterId ();
+    int getItpsrRouterID ();
+
   protected:
     // Configuration
     int m_num_rows;
@@ -214,6 +219,10 @@ class GarnetNetwork : public Network
     std::vector<CreditLink *> m_creditlinks; // All credit links in the network
     std::vector<NetworkInterface *> m_nis;   // All NI's in Network
     int m_next_packet_id; // static vairable for packet id allocation
+
+    //add to support chiplet arch
+    std::map<int, int> Bdry_router2Itpsr_router;
+    std::map<int, int> Itpsr_router2Bdry_router;
 };
 
 inline std::ostream&
