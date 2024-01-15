@@ -10,6 +10,8 @@ In Order to provide a **High-performance Deadlock-free** NoC service in situatio
 
 ## 2. Baseline
 ### 2.1 NoC Topology
+Raleted files:  `/chiplet-flow-ctrl/configs/topologies/Chiplets_Mesh_distrbuteL2_MC_se.py`
+
 ![baseTopology](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/baseTopology.jpg)
 
 The baseline network on chip's topology composed of four 4x4 mesh chiplet and a 4x4 interposer.
@@ -31,12 +33,15 @@ There are 16 interposer router and 64 (4x4x4) chiplet router in the system:
 
 
 ### 2.2 Memory Architecture
+Raleted files:  `/chiplet-flow-ctrl/configs/topologies/Chiplets_Mesh_distrbuteL2_MC_se.py`
+
+![memoryArch](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/memoryArch.jpg)
+
 Each non-NoC node has instruction L1/L2 cache, data L1/L2 cache, Memory Controller(Directory) and Core. These components connect with NoC router via NI.
 - Core: x86 ISA, 1 Ghz Out of Order cores, No prefetcher
 - L1 Cache: Private, 32kB Ins., 64kB Data, 4-way set associative (configurable)
 - L2 Cache: Shared, distributed, 2MB, 8-way set associative (configurable)
 - Coherent protocal: MESI, Directory-based
 
-![memoryArch](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/memoryArch.jpg)
-
 ## 3. Three-stage routing algorithem
+Raleted files: `gem5/chiplet-flow-ctrl/src/mem/ruby/network/garnet/RoutingUnit.cc`
