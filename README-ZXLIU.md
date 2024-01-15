@@ -9,5 +9,5 @@ In Order to provide a **High-performance Deadlock-free** NoC service in situatio
 - to be continued...
 
 ## Baseline Topology
-
+![alt text](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/baseTopology.jpg)
 ## Three-stage routing algorithem
