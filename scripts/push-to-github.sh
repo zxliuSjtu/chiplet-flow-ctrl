@@ -1,5 +1,5 @@
 git add .
-git commit -m 'mem-garnet: modify L2 placement
+git commit -m 'mem-garnet: add readme
 
-place a L2 and a MC at each chiplet cpu, support  both garnet standalone and se mode'
+add readme and some figures'
 git push origin main
