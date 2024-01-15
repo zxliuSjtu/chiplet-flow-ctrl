@@ -45,3 +45,12 @@ Each non-NoC node has instruction L1/L2 cache, data L1/L2 cache, Memory Controll
 
 ## 3. Three-stage routing algorithem
 Raleted files: `gem5/chiplet-flow-ctrl/src/mem/ruby/network/garnet/RoutingUnit.cc`
+
+![routingAlgorithm](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/Routing.jpg)
+
+A three-stage routing algorithm is implmented in RoutingUnit::outportComputeXY(...)
+it allows three different routing algorithm in src chiplet, interposer and dest chiplet.
+
+NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured through flow control technology.
+
+## 4. MicroArchitecture of Routers
