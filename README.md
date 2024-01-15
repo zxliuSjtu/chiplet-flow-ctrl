@@ -1,4 +1,15 @@
 # Chiplet Flow Control
+## To Build
+- `bash ./chiplet-flow-ctrl/scripts/build_garnetalone.sh` (Garnet standalone mode)
+- `bash ./chiplet-flow-ctrl/scripts/build.sh` (SE mode)
+
+## To Run
+- `bash ./chiplet-flow-ctrl/scripts/run_syn_traffic_distL2_MC.sh` (Garnet standalone mode)
+- `bash ./chiplet-flow-ctrl/scripts/run.sh` (SE mode)
+
+## To Contribute
+- `bash ./chiplet-flow-ctrl/scripts/push-to-github.sh`
+
 ## 1. Overview
 This is the source code of gem5 with: Chiplet Flow Control Network on Chip.
 
@@ -54,3 +65,6 @@ it allows three different routing algorithm in src chiplet, interposer and dest 
 NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured through flow control technology.
 
 ## 4. MicroArchitecture of Routers
+
+## Contact me
+Zixuan Liu: <a href="mailto:testmail@gmail.com">zishuan.leo@gmail.com</a> or <a href="mailto:testmail@gmail.com">zx_liu@sjtu.edu.cn</a>
