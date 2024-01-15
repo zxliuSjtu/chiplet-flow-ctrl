@@ -1,5 +1,5 @@
 git add .
 git commit -m 'mem-garnet: add readme
 
-add readme and more figures'
+add new readme and figures'
 git push origin main
