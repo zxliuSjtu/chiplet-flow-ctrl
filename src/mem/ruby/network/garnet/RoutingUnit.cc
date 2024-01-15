@@ -269,15 +269,11 @@ RoutingUnit::outportComputeXY(RouteInfo route,
 {
     PortDirection outport_dirn = "Unknown";
 
-    std::cout << std::endl;
-    std::cout << "start calling routingunit" << std::endl;
-    std::cout << "at router id " << m_router->get_id() << std::endl;
-    std::cout << "the inport dirn is "<< inport_dirn << std::endl;
-    std::cout << "dest router id is "<< route.dest_router << std::endl;
-    //std::cout << "total router num is "<< \
-    //m_router->get_net_ptr()->getNumRouters() << std::endl;
-
-
+    // std::cout << std::endl;
+    // std::cout << "start calling routingunit" << std::endl;
+    // std::cout << "at router id " << m_router->get_id() << std::endl;
+    // std::cout << "the inport dirn is "<< inport_dirn << std::endl;
+    // std::cout << "dest router id is "<< route.dest_router << std::endl;
 
     //[[maybe_unused]] int num_rows = m_router->get_net_ptr()->getNumRows();
     // int num_cols = m_router->get_net_ptr()->getNumCols();
@@ -286,17 +282,17 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     //std::cout << "COLS & ROWS" << num_cols << " "<< num_rows << std::endl;
     assert(num_rows > 0 && num_cols > 0);
 
-    // assume the num of chiplet router is C x N x N
-    // assume the num of interposer router is I x I
-    // assume the num of L2, MC, DMA router is K
-    // the ID order is C x N x N + K + I x I
-    // which means the chiplet routers are first (C x N x N)
-    // and the interposer router are last (I x I)
+    //* assume the num of chiplet router is C x N x N
+    //* assume the num of interposer router is I x I
+    //* assume the num of L2, MC, DMA router is K
+    //* the ID order is C x N x N + K + I x I
+    //* which means the chiplet routers are first (C x N x N)
+    //* and the interposer router are last (I x I)
 
-    // at this time : C = N = I = 4, K = 8
-    // so chiplet router (0 ~ 63)
-    // L2, MC, DMA router (64 ~ 71)
-    // so interposer router (72 ~ 87)
+    //* at this time : C = N = I = 4, K = 0
+    //* so chiplet router (0 ~ 63)
+    //* interposer router (64 ~ 79)
+
     int num_chiplets = 4;
     int total_num_router = m_router->get_net_ptr()->getNumRouters();
     int my_id = m_router->get_id();
@@ -305,16 +301,12 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     int dest_id = route.dest_router;
     int dest_chiplet_id = dest_id / (num_cols*num_rows);
 
-    // std::cout << (num_rows) << std::endl;
-    // std::cout << (num_cols) << std::endl;
-    // std::cout << (num_cols * num_rows) << std::endl;
-    // std::cout << (total_num_router - (num_cols * num_rows)) << std::endl;
-    // std::cout << total_num_router - (num_cols * num_rows) << std::endl;
+
     // CASE1: interposer router to (interposer/chiplet/other) router
     // check if this is interposer router (72 ~ 87)
     if (my_id >= (total_num_router - (num_cols * num_rows))){
-        std::cout << "enter CASE1: interposer router to \
-        (interposer/chiplet/other) router " << std::endl;
+        // std::cout << "enter CASE1: interposer router to
+        // (interposer/chiplet/other) router " << std::endl;
         // the dst router is also interposer router
         // deprecated impossible
         // if (dest_id >= (total_num_router - (num_cols*num_rows))){
@@ -346,11 +338,14 @@ RoutingUnit::outportComputeXY(RouteInfo route,
                 offset = 5;}
 
             // chosed interposer to send "Up"
-            dest_id = offset + 71 + (dest_onchip_id % halfCol) * 2 + \
-                (dest_onchip_id / halfRow) * 8;
+            dest_id = offset + (num_chiplets * num_cols * num_rows) + \
+            (dest_chiplet_id % halfCol) * 2 + \
+            (dest_chiplet_id / halfRow) * 8;
+            // << " chosed interposer to send Up: " << dest_id
+            // << std::endl;
 
             if (my_id == dest_id){
-                std::cout << "return outport dirn: Up" << std::endl;
+                //std::cout << "return outport dirn: Up" << std::endl;
                 outport_dirn = "Up";
                 return m_outports_dirn2idx[outport_dirn];
             }
@@ -370,7 +365,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
             dest_id = dest_id - (total_num_router - (num_cols*num_rows)) + 16;
 
             if (my_id == dest_id){
-                std::cout << "return outport dirn: memUp" << std::endl;
+                //std::cout << "return outport dirn: memUp" << std::endl;
                 outport_dirn = "memUp";
                 return m_outports_dirn2idx[outport_dirn];
             }
@@ -379,8 +374,9 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     // CASE2: chiplet router to (chiplet/other) router
     // check if this is chiplet router
     else if (my_id < (num_chiplets * num_cols * num_rows)){
-        std::cout << "enter CASE2: chiplet router to (chiplet/other) \
-            router " << std::endl;
+        //std::cout <<
+        // "enter CASE2: chiplet router to (chiplet/other) router "
+        // << std::endl;
         // this is chiplet router and dest is another chiplet router
         if (dest_id != my_id){
             // this router and dst router are in different chiplet (L2/MC)
@@ -409,7 +405,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
                 //check if the nearest br is myself,
                 //then just send to interposer
                 if (nearset_onchip_br_id == my_onchip_id){
-                    std::cout << "return outport dirn: Down" << std::endl;
+                    //std::cout << "return outport dirn: Down" << std::endl;
                     outport_dirn = "Down";
                     return m_outports_dirn2idx[outport_dirn];
                     }
@@ -432,9 +428,9 @@ RoutingUnit::outportComputeXY(RouteInfo route,
 
     //CASE3: other router to (chiplet router)
     else{
-        std::cout << "enter CASE3: other router to \
-            (chiplet router) " << std::endl;
-        std::cout << "return outport dirn: memDown" << std::endl;
+        //std::cout << "enter CASE3: other router to
+        //    (chiplet router) " << std::endl;
+        //std::cout << "return outport dirn: memDown" << std::endl;
         outport_dirn = "memDown";
         return m_outports_dirn2idx[outport_dirn];
     }
@@ -445,6 +441,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     // this is a XY routing for intra-chiplet
     // which means src and dst are in same chiplet or interposer
     // the input of this routing is onchip xy coordination
+
     int my_x = my_id % num_cols;
     int my_y = my_id / num_cols;
     int dest_x = dest_id % num_cols;
@@ -487,7 +484,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
         // already checked that in outportCompute() function
         panic("x_hops == y_hops == 0");
     }
-    std::cout << "return outport dirn:" << outport_dirn << std::endl;
+    //std::cout << "return outport dirn:" << outport_dirn << std::endl;
     return m_outports_dirn2idx[outport_dirn];
 }
 

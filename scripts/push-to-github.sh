@@ -1,6 +1,5 @@
 git add .
-git commit -m 'mem-garnet: add chipletXYrouting
+git commit -m 'mem-garnet: modify L2 placement
 
-Add a routing Algorithme to support xy routing in chiplet
-4x4 mesh chiplet+interposer'
+place a L2 and a MC at each chiplet cpu, support  both garnet standalone and se mode'
 git push origin main

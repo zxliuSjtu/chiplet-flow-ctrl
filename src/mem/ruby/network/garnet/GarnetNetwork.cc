@@ -105,7 +105,7 @@ GarnetNetwork::GarnetNetwork(const Params &p)
         ni->init_net_ptr(this);
     }
 
-    // // record the bdry router and itpsr router pair by zxliu
+    // record the bdry router and itpsr router pair by zxliu
     // for (std::vector<BasicRouter*>::const_iterator i =  p.routers.begin();
     //      i != p.routers.end(); ++i) {
     //     Router* router = safe_cast<Router*>(*i);

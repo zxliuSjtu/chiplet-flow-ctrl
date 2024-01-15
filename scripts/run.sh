@@ -3,11 +3,11 @@
 --num-cpus=64 \
 --l1d_size=16kB \
 --l1i_size=16kB \
---num-l2caches=4 \
+--num-l2caches=64 \
 --l2_size=128kB \
---num-dirs=4 \
+--num-dirs=64 \
 --mem-size=4096MB \
 --ruby \
 --network=garnet \
---topology=Chiplets_Mesh \
+--topology=Chiplets_Mesh_distrbuteL2_MC_se \
 -c tests/test-progs/hello/bin/x86/linux/hello \
