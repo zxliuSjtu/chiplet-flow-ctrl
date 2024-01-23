@@ -73,7 +73,13 @@ Router::wakeup()
 {
     DPRINTF(RubyNetwork, "Router %d woke up\n", m_id);
     assert(clockEdge() == curTick());
-
+    bool isCfcTurn = cfcTurn();
+    if (isCfcTurn) {
+        std::cout<<"At cycle: "<<curCycle();
+        std::cout<<" Router "<<\
+        m_id<<" Wakeup"\
+        <<std::endl;
+    }
     // check for incoming flits
     for (int inport = 0; inport < m_input_unit.size(); inport++) {
         m_input_unit[inport]->wakeup();
@@ -309,6 +315,53 @@ Router::functionalWrite(Packet *pkt)
     }
 
     return num_functional_writes;
+}
+
+bool
+Router::cfcTurn()
+{
+    bool result = false;
+    int numRows = get_net_ptr()->getNumRows();
+    int numCols = numRows;
+    assert(numRows == numCols);
+
+    int myId = get_id();
+    //convert global ID into on chip ID
+    int myOnchipId = myId % (numRows * numRows);
+
+    // region number is same as number of rows
+    int totalRegionNum = numRows;
+    int myRegionNum = regionNumber(numRows, numRows, myOnchipId);
+
+    if (get_net_ptr()->m_cfc == 1){
+        int timeSlotNum = curCycle() % totalRegionNum;
+        if (myRegionNum == timeSlotNum){
+            result = true;
+        }
+    }
+    return result;
+}
+
+int
+Router::regionNumber(int meshRows, int meshCols, int routerId){
+
+    int resultRegionNum = 0;
+    assert(meshRows == meshCols); //only support nxn mesh
+
+    int onChipX = routerId % meshRows;
+    int onChipY = routerId / meshRows;
+
+    // use difference of x and y to divide region
+    int differXY = onChipX - onChipY;
+    if (differXY >=0)
+    {
+        resultRegionNum = differXY;
+    }
+    else
+    {
+        resultRegionNum = differXY + meshRows;
+    }
+    return resultRegionNum;
 }
 
 } // namespace garnet

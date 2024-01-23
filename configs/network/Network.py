@@ -125,52 +125,60 @@ def define_options(parser):
     )
     # chiplet related options
     parser.add_argument(
-        "--chiplet-link-latency", 
-        action="store", 
-        type=int, 
+        "--chiplet-link-latency",
+        action="store",
+        type=int,
         default=1,
         help="""latency of chiplet link in garnet networks.
             Has to be >= 1.
             an be over-ridden on a per link basis
-            in the topology file."""
+            in the topology file.""",
     )
     parser.add_argument(
-        "--chiplet-link-width", 
-        action="store", 
+        "--chiplet-link-width",
+        action="store",
         type=int,
         default=128,
-        help="default width in bits for links inside garnet."
+        help="default width in bits for links inside garnet.",
     )
     parser.add_argument(
-        "--interposer-link-latency", 
-        action="store", 
-        type=int, 
+        "--interposer-link-latency",
+        action="store",
+        type=int,
         default=1,
         help="""latency of interposer link in garnet networks.
             Has to be >= 1.
             Can be over-ridden on a per link basis
-            in the topology file."""
-        )
+            in the topology file.""",
+    )
     parser.add_argument(
-        "--interposer-link-width", 
-        action="store", 
+        "--interposer-link-width",
+        action="store",
         type=int,
         default=128,
-        help="default width in bits for links inside garnet."
+        help="default width in bits for links inside garnet.",
     )
     parser.add_argument(
-        "--clip-logic-ifc-delay", 
-        action="store", 
-        type=int, 
+        "--clip-logic-ifc-delay",
+        action="store",
+        type=int,
         default=1,
-        help="delay due to chiplet logical protocol interface"
+        help="delay due to chiplet logical protocol interface",
     )
     parser.add_argument(
-        "--clip-phys-ifc-delay", 
-        action="store", 
-        type=int, 
+        "--clip-phys-ifc-delay",
+        action="store",
+        type=int,
         default=1,
-        help="delay due to chiplet physical interface"
+        help="delay due to chiplet physical interface",
+    )
+    # add arguments for Chiplet Flow Control (cfc)
+    parser.add_argument(
+        "--cfc",
+        action="store",
+        type=int,
+        default=0,
+        help="to enable Chiplet flow Control",
     )
 
 
@@ -221,6 +229,7 @@ def init_network(options, network, InterfaceClass):
         network.ni_flit_size = options.link_width_bits / 8
         network.routing_algorithm = options.routing_algorithm
         network.garnet_deadlock_threshold = options.garnet_deadlock_threshold
+        network.cfc = options.cfc
 
         # Create Bridges and connect them to the corresponding links
         for intLink in network.int_links:

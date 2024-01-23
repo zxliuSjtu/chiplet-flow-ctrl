@@ -89,7 +89,7 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
         num_l2_routers = 0
         num_cpus_per_chiplet = int(len(cpu_nodes) / num_cpu_chiplets)
         num_l2_mc_dma_chiplets = 0
-        num_chiplets = num_cpu_chiplets + num_l2_mc_dma_chiplets  # (xbar)
+        num_chiplets = num_cpu_chiplets + num_l2_mc_dma_chiplets
 
         # Mesh rows and columns
         num_rows = int(math.sqrt(num_cpus_per_chiplet))
@@ -148,15 +148,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     width=chiplet_link_width,
                 )
             )
-            print_connection(
-                "CPU",
-                n.version,
-                "Router",
-                router_id,
-                link_count,
-                chiplet_link_latency,
-                chiplet_link_width,
-            )
+            # print_connection(
+            #     "CPU",
+            #     n.version,
+            #     "Router",
+            #     router_id,
+            #     link_count,
+            #     chiplet_link_latency,
+            #     chiplet_link_width,
+            # )
             link_count += 1
             router_id += 1
 
@@ -176,15 +176,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     width=chiplet_link_width,
                 )
             )
-            print_connection(
-                "L2",
-                n.version,
-                "Router",
-                router_id,
-                link_count,
-                chiplet_link_latency,
-                chiplet_link_width,
-            )
+            # print_connection(
+            #     "L2",
+            #     n.version,
+            #     "Router",
+            #     router_id,
+            #     link_count,
+            #     chiplet_link_latency,
+            #     chiplet_link_width,
+            # )
             link_count += 1
             router_id += 1
 
@@ -204,15 +204,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     width=chiplet_link_width,
                 )
             )
-            print_connection(
-                "MC",
-                n.version,
-                "Router",
-                router_id,
-                link_count,
-                chiplet_link_latency,
-                chiplet_link_width,
-            )
+            # print_connection(
+            #     "MC",
+            #     n.version,
+            #     "Router",
+            #     router_id,
+            #     link_count,
+            #     chiplet_link_latency,
+            #     chiplet_link_width,
+            # )
             link_count += 1
             router_id += 1
         assert router_id == len(mc_nodes)
@@ -222,9 +222,9 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
         network.ext_links = ext_links
 
         ## All routers except interposer router have been connected
-        print(router_id)
-        print(num_routers)
-        print(num_routers - num_interposer_router)
+        # print(router_id)
+        # print(num_routers)
+        # print(num_routers - num_interposer_router)
         assert router_id == num_routers - num_interposer_router
         interpoer_router_id = router_id  # This is the last remaining router
 
@@ -264,15 +264,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[east_out]),
-                            "Router",
-                            get_router_id(routers[west_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[east_out]),
+                        #     "Router",
+                        #     get_router_id(routers[west_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -303,15 +303,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[west_out]),
-                            "Router",
-                            get_router_id(routers[east_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[west_out]),
+                        #     "Router",
+                        #     get_router_id(routers[east_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -342,15 +342,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[north_out]),
-                            "Router",
-                            get_router_id(routers[south_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[north_out]),
+                        #     "Router",
+                        #     get_router_id(routers[south_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -381,17 +381,18 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[south_out]),
-                            "Router",
-                            get_router_id(routers[north_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[south_out]),
+                        #     "Router",
+                        #     get_router_id(routers[north_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
+            print("Topology for CPU Chiplet " + str(cc) + ": Mesh, done")
 
         ## Added all CPU chiplet links
         assert test_num_cpus == len(cpu_nodes)
@@ -432,15 +433,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[east_out]),
-                            "Router",
-                            get_router_id(routers[west_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[east_out]),
+                        #     "Router",
+                        #     get_router_id(routers[west_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -473,15 +474,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[west_out]),
-                            "Router",
-                            get_router_id(routers[east_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[west_out]),
+                        #     "Router",
+                        #     get_router_id(routers[east_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -514,15 +515,15 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[north_out]),
-                            "Router",
-                            get_router_id(routers[south_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[north_out]),
+                        #     "Router",
+                        #     get_router_id(routers[south_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
 
@@ -555,21 +556,22 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                             )
                         )
 
-                        print_connection(
-                            "Router",
-                            get_router_id(routers[south_out]),
-                            "Router",
-                            get_router_id(routers[north_in]),
-                            link_count,
-                            chiplet_link_latency,
-                            chiplet_link_width,
-                        )
+                        # print_connection(
+                        #     "Router",
+                        #     get_router_id(routers[south_out]),
+                        #     "Router",
+                        #     get_router_id(routers[north_in]),
+                        #     link_count,
+                        #     chiplet_link_latency,
+                        #     chiplet_link_width,
+                        # )
 
                         link_count += 1
+            print("Topology for interposer" + str(cc) + ": Mesh, done")
         assert test_num_br == num_interposer_router
 
         ## Connect all chiplets to Xbar
-        print("Connecting all interposer routers as mesh")
+        print("Have Connected all interposer routers as mesh")
 
         # Connect br to interposer routers
         # First connect all CPU chiplets via their Router "1" "2" "13" "14"
@@ -612,22 +614,22 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(routers[br_router_id[0]]),
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                    ]
-                ),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(routers[br_router_id[0]]),
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #         ]
+            #     ),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -650,23 +652,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(routers[br_router_id[1]]),
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 1
-                    ]
-                ),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(routers[br_router_id[1]]),
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 1
+            #         ]
+            #     ),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -689,23 +691,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(routers[br_router_id[2]]),
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 4
-                    ]
-                ),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(routers[br_router_id[2]]),
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 4
+            #         ]
+            #     ),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -728,23 +730,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(routers[br_router_id[3]]),
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 5
-                    ]
-                ),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(routers[br_router_id[3]]),
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 5
+            #         ]
+            #     ),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             # Rtr to CPU chiplet
@@ -767,22 +769,22 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                    ]
-                ),
-                "Router",
-                get_router_id(routers[br_router_id[0]]),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #         ]
+            #     ),
+            #     "Router",
+            #     get_router_id(routers[br_router_id[0]]),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -805,23 +807,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 1
-                    ]
-                ),
-                "Router",
-                get_router_id(routers[br_router_id[1]]),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 1
+            #         ]
+            #     ),
+            #     "Router",
+            #     get_router_id(routers[br_router_id[1]]),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -844,23 +846,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 4
-                    ]
-                ),
-                "Router",
-                get_router_id(routers[br_router_id[2]]),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 4
+            #         ]
+            #     ),
+            #     "Router",
+            #     get_router_id(routers[br_router_id[2]]),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             int_links.append(
@@ -883,23 +885,23 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
                     weight=1,
                 )
             )
-            print_connection(
-                "Router",
-                get_router_id(
-                    routers[
-                        8 * (cc // 2)
-                        + 2 * (cc % 2)
-                        + num_routers
-                        - num_interposer_router
-                        + 5
-                    ]
-                ),
-                "Router",
-                get_router_id(routers[br_router_id[3]]),
-                link_count,
-                interp_link_latency,
-                interp_link_width,
-            )
+            # print_connection(
+            #     "Router",
+            #     get_router_id(
+            #         routers[
+            #             8 * (cc // 2)
+            #             + 2 * (cc % 2)
+            #             + num_routers
+            #             - num_interposer_router
+            #             + 5
+            #         ]
+            #     ),
+            #     "Router",
+            #     get_router_id(routers[br_router_id[3]]),
+            #     link_count,
+            #     interp_link_latency,
+            #     interp_link_width,
+            # )
             link_count += 1
 
             br_router_id[0] += num_cpus_per_chiplet
@@ -907,7 +909,7 @@ class Chiplets_Mesh_distrbuteL2_MC_se(SimpleTopology):
             br_router_id[2] += num_cpus_per_chiplet
             br_router_id[3] += num_cpus_per_chiplet
 
-        print("Connecting all interposer routers to boundary router")
+        print("Have Connected all interposer routers to boundary router")
 
         network.int_links = int_links
 

@@ -10,4 +10,5 @@ touch ./m5out/out.log
             --sim-cycles=1000000 \
             --injectionrate=1.00 \
             --synthetic=uniform_random \
-            --routing-algorithm=1 > ./m5out/out.log
+            --routing-algorithm=2 \
+            --cfc=1 > ./m5out/out.log

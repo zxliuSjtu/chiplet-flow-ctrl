@@ -105,6 +105,9 @@ GarnetNetwork::GarnetNetwork(const Params &p)
         ni->init_net_ptr(this);
     }
 
+    // data members related to CFC
+    m_cfc = p.cfc;
+
     // record the bdry router and itpsr router pair by zxliu
     // for (std::vector<BasicRouter*>::const_iterator i =  p.routers.begin();
     //      i != p.routers.end(); ++i) {
@@ -131,6 +134,10 @@ GarnetNetwork::GarnetNetwork(const Params &p)
 
     // Print Garnet version
     inform("Garnet version %s\n", garnetVersion);
+    // Print CFC configuration
+    if (m_cfc) {
+        inform("Chiplet Flow Control: True");
+    }
 }
 
 void

@@ -162,6 +162,9 @@ class GarnetNetwork : public Network
     int getBdryRouterId ();
     int getItpsrRouterID ();
 
+    //members related to CFC
+    int m_cfc;
+
   protected:
     // Configuration
     int m_num_rows;

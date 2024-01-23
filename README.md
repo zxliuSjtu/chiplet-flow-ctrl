@@ -54,13 +54,18 @@ Each non-NoC node has instruction L1/L2 cache, data L1/L2 cache, Memory Controll
 - L2 Cache: Shared, distributed, 2MB, 8-way set associative (configurable)
 - Coherent protocal: MESI, Directory-based
 
-## 3. Three-stage routing algorithem
+## 3. Three-stage routing algorithm
 Raleted files: `gem5/chiplet-flow-ctrl/src/mem/ruby/network/garnet/RoutingUnit.cc`
 
 ![routingAlgorithm](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/Routing.jpg)
 
 A three-stage routing algorithm is implmented in RoutingUnit::outportComputeXY(...)
 it allows three different routing algorithm in src chiplet, interposer and dest chiplet.
+
+Use `--routing-algorithm` to control routing algorithm:
+- `--routing-algorithm = 0`: The default routing algorithm is a deterministic table-based routing algorithm with shortest paths. Link weights can be used to prioritize certain links over others. See src/mem/ruby/network/Topology.cc for details about how the routing table is populated.
+- `--routing-algorithm = 1`: Mesh XY routing, deprecated under chiplet situation.
+- `--routing-algorithm = 2`: Three-stage routing algorithm
 
 NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured through flow control technology.
 

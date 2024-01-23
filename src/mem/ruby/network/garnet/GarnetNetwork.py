@@ -52,6 +52,7 @@ class GarnetNetwork(RubyNetwork):
     garnet_deadlock_threshold = Param.UInt32(
         50000, "network-level deadlock threshold"
     )
+    cfc = Param.Int(Parent.cfc, "To enable Chiplet Flow Contrl")
 
 
 class GarnetNetworkInterface(ClockedObject):

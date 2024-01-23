@@ -142,6 +142,38 @@ class Router : public BasicRouter, public Consumer
     bool functionalRead(Packet *pkt, WriteMask &mask);
     uint32_t functionalWrite(Packet *);
 
+    /**
+    * @brief to determine wakeup routers satisfying non-overlap paths
+    * @author zxliu
+    *
+    * According to the proof, in a mesh on-chip network,
+    * by awakening a set of routers according to specific rules,
+    * a set of non overlapping paths can be generated in the network
+    * for fast flow control transmission.
+    */
+    bool cfcTurn();
+
+    /**
+    * @brief to determine what region dose a router belongs to.
+    * @author zxliu
+    *
+    * We divide a mesh network into multiple regions,
+    * and the routers in each region do not share rows or columns
+    * 1-5-4-3-2
+    * 2-1-5-4-3
+    * 3-2-1-5-4
+    * 4-3-2-1-5
+    * 5-4-3-2-1
+    * n x n mesh will be divided into n regions
+    * @param meshRows
+    * mesh's Row number of this router's chip
+    * @param meshCols
+    * mesh's Col number of this router's chip, for now, meshCols=meshRows
+    * @param routerId
+    * the router's on-chip id, not global id
+    */
+    int regionNumber(int meshRows, int meshCols, int routerId);
+
   private:
     Cycles m_latency;
     uint32_t m_virtual_networks, m_vc_per_vnet, m_num_vcs;
