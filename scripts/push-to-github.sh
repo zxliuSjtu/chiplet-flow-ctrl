@@ -1,5 +1,5 @@
 git add .
-git commit -m 'mem-garnet: add code format rules
+git commit -m 'mem-garnet: add code format
 
-add code format into README'
+add code format rules'
 git push origin main

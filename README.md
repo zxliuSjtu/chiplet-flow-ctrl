@@ -73,8 +73,9 @@ NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured throug
 
 ## Code format
 Use small Camel-Case for varibles name, use big Camel-Case for function name, like:
-- myPassword, meshRows, OnchipRouter
+- myPassword, meshRows, onChipRouter
 - IsMyTurn(), GetNumRows()
+
 Use m_ for private class member, like:
 - m_latency, m_cfc
 
