@@ -151,7 +151,7 @@ class Router : public BasicRouter, public Consumer
     * a set of non overlapping paths can be generated in the network
     * for fast flow control transmission.
     */
-    bool cfcTurn();
+    bool CfcTurn();
 
     /**
     * @brief to determine what region dose a router belongs to.
@@ -172,7 +172,7 @@ class Router : public BasicRouter, public Consumer
     * @param routerId
     * the router's on-chip id, not global id
     */
-    int regionNumber(int meshRows, int meshCols, int routerId);
+    int RegionNumber(int meshRows, int meshCols, int routerId);
 
   private:
     Cycles m_latency;

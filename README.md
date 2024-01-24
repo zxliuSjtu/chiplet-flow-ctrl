@@ -71,5 +71,12 @@ NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured throug
 
 ## 4. MicroArchitecture of Routers
 
+## Code format
+Use small Camel-Case for varibles name, use big Camel-Case for function name, like:
+- myPassword, meshRows, OnchipRouter
+- IsMyTurn(), GetNumRows()
+Use m_ for private class member, like:
+- m_latency, m_cfc
+
 ## Contact me
 Zixuan Liu: <a href="mailto:testmail@gmail.com">zishuan.leo@gmail.com</a> or <a href="mailto:testmail@gmail.com">zx_liu@sjtu.edu.cn</a>

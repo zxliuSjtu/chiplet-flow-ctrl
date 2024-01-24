@@ -1,6 +1,5 @@
 git add .
-git commit -m 'mem-garnet: add router wakeup rules
+git commit -m 'mem-garnet: add code format rules
 
-add a control paramater "--cfc"
-add new func: Router::cfcTurn()'
+add code format into README'
 git push origin main

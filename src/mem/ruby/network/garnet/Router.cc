@@ -73,7 +73,7 @@ Router::wakeup()
 {
     DPRINTF(RubyNetwork, "Router %d woke up\n", m_id);
     assert(clockEdge() == curTick());
-    bool isCfcTurn = cfcTurn();
+    bool isCfcTurn = CfcTurn();
     if (isCfcTurn) {
         std::cout<<"At cycle: "<<curCycle();
         std::cout<<" Router "<<\
@@ -318,7 +318,7 @@ Router::functionalWrite(Packet *pkt)
 }
 
 bool
-Router::cfcTurn()
+Router::CfcTurn()
 {
     bool result = false;
     int numRows = get_net_ptr()->getNumRows();
@@ -329,9 +329,9 @@ Router::cfcTurn()
     //convert global ID into on chip ID
     int myOnchipId = myId % (numRows * numRows);
 
-    // region number is same as number of rows
+    // total region number is same as number of rows
     int totalRegionNum = numRows;
-    int myRegionNum = regionNumber(numRows, numRows, myOnchipId);
+    int myRegionNum = RegionNumber(numRows, numRows, myOnchipId);
 
     if (get_net_ptr()->m_cfc == 1){
         int timeSlotNum = curCycle() % totalRegionNum;
@@ -343,7 +343,7 @@ Router::cfcTurn()
 }
 
 int
-Router::regionNumber(int meshRows, int meshCols, int routerId){
+Router::RegionNumber(int meshRows, int meshCols, int routerId){
 
     int resultRegionNum = 0;
     assert(meshRows == meshCols); //only support nxn mesh
