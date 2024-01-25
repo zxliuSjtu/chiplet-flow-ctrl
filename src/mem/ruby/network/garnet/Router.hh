@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef __MEM_RUBY_NETWORK_GARNET_0_ROUTER_HH__
 #define __MEM_RUBY_NETWORK_GARNET_0_ROUTER_HH__
 
@@ -173,6 +172,24 @@ class Router : public BasicRouter, public Consumer
     * the router's on-chip id, not global id
     */
     int RegionNumber(int meshRows, int meshCols, int routerId);
+
+    /**
+     * @brief choose boundary router
+     * @author zxliu
+     *
+     * choose a boundary router to make
+     * inter-chiplet transmission
+     *
+     * @param chipletRouterId
+    */
+    int GetBoundaryRouter(int chipletRouterId);
+
+    /**
+     * @brief boundary router to corresponding interposer router
+     * @author zxliu
+     * @param boundaryRouterId
+    */
+    int BoundaryToInterposer(int BrId);
 
   private:
     Cycles m_latency;

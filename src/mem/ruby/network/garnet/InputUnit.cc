@@ -183,6 +183,135 @@ InputUnit::resetStats()
     }
 }
 
+bool InputUnit::MakeFastTransmission(int vnet)
+{
+    if (m_router->get_net_ptr()->m_cfc == 1)
+    {
+        int vcBase = vnet * m_vc_per_vnet;
+        flit *t_flit;
+        if (virtualChannels[vcBase].isEmpty())
+        {
+            return false;
+        }
+        else {
+            t_flit = virtualChannels[vcBase].getTopFlit();
+        }
+
+        DPRINTF(RubyNetwork, "[InputUnit::make_pkt_bufferless()] "\
+                "Inport direction for which we are ejecting packet: %s\n",\
+                 m_direction);
+        DPRINTF(RubyNetwork,"%s \n", *t_flit);
+
+        int chipletLinkLatency = 1;
+        int interposerLinkLatency = 100;
+        int routerLatency = 1;
+
+        int latency = LatencyCompute(t_flit, \
+                                     chipletLinkLatency, \
+                                     routerLatency, \
+                                     interposerLinkLatency);
+
+        //todo: consume a packet in latency cycle
+        std::cout << "Mk a fast transmission" << std::endl;
+        std::cout << "at vnet: "<< vnet << std::endl;
+        return true;
+    }
+    return false;
+}
+
+int InputUnit::LatencyCompute \
+(flit* pFlit, int linkLatency, int routerLatency, int interposerLinkLatency)
+{
+    int resultHops = -1;
+    int resultLatency = -1;
+
+    int numRows = m_router->get_net_ptr()->getNumRows();
+    assert(numRows < 10); //deprecate it when need
+
+    int myRouterId = m_router->get_id();
+    int myOnchipRouterId = myRouterId % (numRows * numRows);
+    int myChipletId = myRouterId / (numRows * numRows);
+    int myX = myOnchipRouterId % numRows;
+    int myY = myOnchipRouterId / numRows;
+
+    int destRouterId = pFlit->get_route().dest_router;
+    int destOnchipRouterId = destRouterId % (numRows * numRows);
+    int destChipletId = destRouterId / (numRows * numRows);
+    // int destNI = pFlit->get_route().dest_ni;
+    int destX = destOnchipRouterId % numRows;
+    int destY = destOnchipRouterId / numRows;
+
+    // if src and dest are on the same chiplet
+    if (destChipletId == myChipletId)
+    {
+        int xHops = abs(destX - myX);
+        int yHops = abs(destY - myY);
+        resultHops = xHops + yHops;
+
+        if (myOnchipRouterId == destOnchipRouterId)
+        {
+            resultHops = 1;
+        }
+        assert(resultHops > 0);
+        resultLatency = (linkLatency + routerLatency) * resultHops + 1;
+        assert(resultLatency > 0);
+        return resultLatency;
+    }
+    else
+    {   // src and dest are not on the same chiplet
+        // find the two boundary router used
+        int srcBoundaryRouterId = \
+            m_router->GetBoundaryRouter(myRouterId);
+        int destBoundaryRouterId = \
+            m_router->GetBoundaryRouter(destRouterId);
+
+        // find the corresponding interposer router
+        int srcInterposerRouterId = \
+            m_router->BoundaryToInterposer(srcBoundaryRouterId);
+        int destInterposerRouterId = \
+            m_router->BoundaryToInterposer(destBoundaryRouterId);
+
+        int srcBrX = (srcBoundaryRouterId % (numRows * numRows))\
+            % numRows;
+        int srcBrY = (srcBoundaryRouterId % (numRows * numRows))\
+            / numRows;
+
+        int destBrX = (destBoundaryRouterId % (numRows * numRows))\
+            % numRows;
+        int destBrY = (destBoundaryRouterId % (numRows * numRows))\
+            / numRows;
+
+        int srcIrX = (srcInterposerRouterId % (numRows * numRows))\
+            % numRows;
+        int srcIrY = (srcInterposerRouterId % (numRows * numRows))\
+            / numRows;
+
+        int destIrX = (destInterposerRouterId % (numRows * numRows))\
+            % numRows;
+        int destIrY = (destInterposerRouterId % (numRows * numRows))\
+            / numRows;
+
+        int chipletXHops = abs(srcBrX - myX) + \
+                           abs(destX - destBrX);
+
+        int chipletYHops = abs(srcBrY - myY) + \
+                           abs(destY - destBrY);
+
+        int interposerXHops = abs(srcIrX - destIrX);
+        int interposerYHops = abs(srcIrY - destIrY);
+
+        int chipletLatency = (linkLatency + routerLatency) * \
+                             (chipletXHops + chipletYHops);
+        int interposerLatency= (interposerLinkLatency + routerLatency) * \
+                               (interposerYHops + interposerXHops) + \
+                               2 * interposerLinkLatency; //vertical link
+        resultLatency = chipletLatency + interposerLatency;
+        assert(resultLatency > 0);
+        return resultLatency;
+    }
+
+}
+
 } // namespace garnet
 } // namespace ruby
 } // namespace gem5

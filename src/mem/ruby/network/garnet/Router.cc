@@ -77,8 +77,16 @@ Router::wakeup()
     if (isCfcTurn) {
         std::cout<<"At cycle: "<<curCycle();
         std::cout<<" Router "<<\
-        m_id<<" Wakeup"\
+        m_id<<" make CFC"\
         <<std::endl;
+        for (int inport = 0; inport < m_input_unit.size(); inport++) {
+            //there are three vnet
+            //should round robin
+            //ft at same time is wrong
+            m_input_unit[inport]->MakeFastTransmission(0);
+            m_input_unit[inport]->MakeFastTransmission(1);
+            m_input_unit[inport]->MakeFastTransmission(2);
+        }
     }
     // check for incoming flits
     for (int inport = 0; inport < m_input_unit.size(); inport++) {
@@ -326,6 +334,11 @@ Router::CfcTurn()
     assert(numRows == numCols);
 
     int myId = get_id();
+    //only chiplet router should wake up as cfc
+    if (myId >= 64)
+    {
+        return false;
+    }
     //convert global ID into on chip ID
     int myOnchipId = myId % (numRows * numRows);
 
@@ -343,7 +356,8 @@ Router::CfcTurn()
 }
 
 int
-Router::RegionNumber(int meshRows, int meshCols, int routerId){
+Router::RegionNumber(int meshRows, int meshCols, int routerId)
+{
 
     int resultRegionNum = 0;
     assert(meshRows == meshCols); //only support nxn mesh
@@ -362,6 +376,81 @@ Router::RegionNumber(int meshRows, int meshCols, int routerId){
         resultRegionNum = differXY + meshRows;
     }
     return resultRegionNum;
+}
+
+int
+Router::GetBoundaryRouter(int chipletRouterId)
+{
+    int resultBrId = -1;
+    int numRows = get_net_ptr()->getNumRows();
+    int myId = chipletRouterId;
+    int myChipletId = myId / (numRows * numRows);
+    //find the frist router of this chiplet
+    int chipletBaseId = myChipletId * (numRows * numRows);
+
+    int halfCol = numRows / 2;
+    int halfRow = numRows / 2;
+
+
+    int myOnchipId = myId % (numRows * numRows);
+    int myOnchipX = myOnchipId % numRows;
+    int myOnchipY = myOnchipId / numRows;
+
+    if (myOnchipX < halfCol && myOnchipY < halfRow)
+        {
+            resultBrId = chipletBaseId + 1;
+        }
+    else if (myOnchipX >= halfCol && myOnchipY < halfRow)
+        {
+            resultBrId = chipletBaseId + 2;
+        }
+    else if (myOnchipX < halfCol && myOnchipY >= halfRow)
+        {
+            resultBrId = chipletBaseId + 13;
+        }
+    else {
+        resultBrId = chipletBaseId + 14;
+        }
+
+    assert(resultBrId != 0); //find successfully
+    return resultBrId;
+}
+
+int
+Router::BoundaryToInterposer(int BrId)
+{
+    std::map<int, int> Br2Ir;
+    //chiplet 0
+    Br2Ir[1]  = 64;
+    Br2Ir[2]  = 65;
+    Br2Ir[13] = 68;
+    Br2Ir[14] = 69;
+    //chiplet 1
+    Br2Ir[17] = 66;
+    Br2Ir[18] = 67;
+    Br2Ir[29] = 70;
+    Br2Ir[30] = 71;
+    //chiplet 2
+    Br2Ir[33] = 72;
+    Br2Ir[34] = 73;
+    Br2Ir[45] = 76;
+    Br2Ir[46] = 77;
+    //chiplet 4
+    Br2Ir[49] = 74;
+    Br2Ir[50] = 75;
+    Br2Ir[61] = 78;
+    Br2Ir[62] = 79;
+
+    //make sure the BrId is right
+    std::map<int, int>::iterator iter;
+    iter = Br2Ir.find(BrId);
+    if (iter != Br2Ir.end()) {
+        return Br2Ir[BrId];
+    }
+    else {
+        //wrong br id
+        assert(0);
+    }
 }
 
 } // namespace garnet

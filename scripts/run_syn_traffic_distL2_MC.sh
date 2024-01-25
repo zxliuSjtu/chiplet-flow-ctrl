@@ -7,8 +7,9 @@ touch ./m5out/out.log
             --num-l2caches=64 \
             --network=garnet \
             --router-latency=1 \
+            --vcs-per-vnet=1 \
             --sim-cycles=1000000 \
-            --injectionrate=1.00 \
+            --injectionrate=0.1 \
             --synthetic=uniform_random \
             --routing-algorithm=2 \
             --cfc=1 > ./m5out/out.log

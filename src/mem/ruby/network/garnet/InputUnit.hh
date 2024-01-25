@@ -59,6 +59,39 @@ class InputUnit : public Consumer
     ~InputUnit() = default;
 
     void wakeup();
+
+    /**
+     * @brief make a fast transmission
+     * @author zxliu
+     * every wakeup router will fristly check if it's CfcTrun()
+     * if so, the router will make a fast transmission which means:
+     *
+     * step1: check all InportUnits of this router, choose one
+     * step2: check all VCs of this InportUnit, choose one
+     * step3: send the top flit of this vc buffer with the manner of
+     *        fast transmission
+     * step4: send directly to its destination NI
+     * @param vnet the vnet id of this inport unit
+    */
+    bool MakeFastTransmission(int vnet);
+
+    /**
+     * @brief to compute latncy of fast transmission
+     * @author zxliu
+     * src: ejection inportunit
+     * des: ejection NI req queue
+     *
+     * step1: compute the hops in manner of shortest path
+     * step2: compute the latency
+     *
+     * @param flit* point to a flit
+     * @param linkLatency latency when link transcation
+     * @param routerLatency latency at each router
+    */
+    int LatencyCompute \
+        (flit* pFlit, int linkLatency, \
+        int routerLatency, int interposerLinkLatency);
+
     void print(std::ostream& out) const {};
 
     inline PortDirection get_direction() { return m_direction; }

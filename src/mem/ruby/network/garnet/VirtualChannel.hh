@@ -53,6 +53,7 @@ class VirtualChannel
     ~VirtualChannel() = default;
 
     bool need_stage(flit_stage stage, Tick time);
+    bool isEmpty()                      { return inputBuffer.isEmpty(); };
     void set_idle(Tick curTime);
     void set_active(Tick curTime);
     void set_outvc(int outvc)               { m_output_vc = outvc; }
