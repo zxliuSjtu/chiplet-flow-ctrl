@@ -82,6 +82,19 @@ class NetworkInterface : public ClockedObject, public Consumer
     bool functionalRead(Packet *pkt, WriteMask &mask);
     uint32_t functionalWrite(Packet *);
 
+    //add for cfc
+    /**
+     * @brief to consume a pkt sent from src inputunit
+     * @author zxliu
+     * @param latency the latency between send and receive
+     * 1. get flit from m_cfcPacketBuffer who will be enqueued to NI's buffer
+     * 2. delete the copy of flit in m_cfcPacketBuffer
+     * 3. set a dequeue time of this flit
+     * 4. enqueue this flit in buffer: outNode_ptr[vnet]
+    */
+    void ConsumeCfcPacket(int latency);
+    flitBuffer * m_cfcPacketBuffer;
+
     void scheduleFlit(flit *t_flit);
 
     int get_router_id(int vnet)

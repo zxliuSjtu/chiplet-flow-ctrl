@@ -28,11 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "mem/ruby/network/garnet/InputUnit.hh"
 
 #include "debug/RubyNetwork.hh"
 #include "mem/ruby/network/garnet/Credit.hh"
+#include "mem/ruby/network/garnet/NetworkInterface.hh"
 #include "mem/ruby/network/garnet/Router.hh"
 
 namespace gem5
@@ -203,7 +203,7 @@ bool InputUnit::MakeFastTransmission(int vnet)
         DPRINTF(RubyNetwork,"%s \n", *t_flit);
 
         int chipletLinkLatency = 1;
-        int interposerLinkLatency = 100;
+        int interposerLinkLatency = 1;
         int routerLatency = 1;
 
         int latency = LatencyCompute(t_flit, \
@@ -211,9 +211,29 @@ bool InputUnit::MakeFastTransmission(int vnet)
                                      routerLatency, \
                                      interposerLinkLatency);
 
-        //todo: consume a packet in latency cycle
-        std::cout << "Mk a fast transmission" << std::endl;
-        std::cout << "at vnet: "<< vnet << std::endl;
+        std::cout << "latencycompute over at vnet: "<<vnet<<std::endl;
+
+        int dest_ni = t_flit->get_route().dest_ni;
+        std::vector<NetworkInterface *> NIs=m_router->get_net_ptr()->getNIs();
+        if (t_flit->get_type() == TAIL_) {std::cout << "TAIL_";}
+        if (t_flit->get_type() == HEAD_TAIL_) {std::cout << "HEAD_TAIL_";}
+        if (t_flit->get_type() == BODY_) {std::cout << "BODY_";}
+        std::cout << std::endl;
+
+
+        // m_cfcPacketBuffer is just a temp buffer to save t_flit
+
+        for (int hops = 0; hops <= LatencyCompute(t_flit,0,1,0); hops++){
+            t_flit->increment_hops();
+        }
+        NIs[dest_ni] -> m_cfcPacketBuffer -> insert(t_flit);
+        NIs[dest_ni] -> ConsumeCfcPacket(latency);
+        // enqueue this pkt in dest_ni's buffer and set a dequeue time
+        std::cout << "Mk a fast transmission at vnet: "<< vnet << std::endl;
+
+        increment_credit(vcBase, true, m_router->curCycle());
+        set_vc_idle(vcBase, m_router->curCycle());
+
         return true;
     }
     return false;

@@ -60,6 +60,7 @@ NetworkInterface::NetworkInterface(const Params &p)
 {
     m_stall_count.resize(m_virtual_networks);
     niOutVcs.resize(0);
+    m_cfcPacketBuffer = new flitBuffer();
 }
 
 void
@@ -161,7 +162,14 @@ NetworkInterface::incrementStats(flit *t_flit)
         t_flit->get_dequeue_time() -
         t_flit->get_enqueue_time() - cyclesToTicks(Cycles(1));
     Tick src_queueing_delay = t_flit->get_src_delay();
-    Tick dest_queueing_delay = (curTick() - t_flit->get_dequeue_time());
+    // dest_queueing_delay = 0 for cfc flit
+    Tick dest_queueing_delay;
+    if (t_flit->get_dequeue_time() > curTick()){
+        dest_queueing_delay = curTick() - curTick();
+    }
+    else{
+        dest_queueing_delay = (curTick() - t_flit->get_dequeue_time());
+    }
     Tick queueing_delay = src_queueing_delay + dest_queueing_delay;
 
     m_net_ptr->increment_flit_network_latency(network_delay, vnet);
@@ -174,7 +182,11 @@ NetworkInterface::incrementStats(flit *t_flit)
     }
 
     // Hops
+
+    std::cout<<" t_flit->get_route().hops_traversed: "\
+        <<  t_flit->get_route().hops_traversed << std::endl;
     m_net_ptr->increment_total_hops(t_flit->get_route().hops_traversed);
+
 }
 
 /*
@@ -698,6 +710,64 @@ NetworkInterface::functionalWrite(Packet *pkt)
     }
     return num_functional_writes;
 }
+
+void
+NetworkInterface::ConsumeCfcPacket(int latency){
+    std::cout << "will consume a fast transmission, after latency: " \
+    <<latency<< std::endl;
+    assert(m_net_ptr->m_cfc == 1);
+    Tick curTime = clockEdge();
+
+    // Check if there are flits stalling a virtual channel. Track if a
+    // message is enqueued to restrict ejection to one message per cycle.
+    // bool messageEnqueuedThisCycle = checkStallQueue();
+
+    //insert the filt into m_cfcPacketBuffer
+    //before call ConsumeCfcPacket()
+    flit *t_flit = m_cfcPacketBuffer->getTopFlit();
+    // getTopFlit() will delete the top flit in m_cfcPacketBuffer
+    assert(m_cfcPacketBuffer->isEmpty());
+
+    int vnet = t_flit->get_vnet(); // flit contains the vnet information
+
+    std::cout << "set_dequeue_time to a filt top of cfcPacketBuffer" \
+        << std::endl;
+
+    t_flit->set_dequeue_time(cyclesToTicks(curCycle() + Cycles(latency)));
+
+    // If a tail flit is received, enqueue into the protocol buffers if
+    // space is available. Otherwise, exchange non-tail flits for credits.
+
+    if (t_flit->get_type() == TAIL_ || t_flit->get_type() == HEAD_TAIL_) {
+        if (outNode_ptr[vnet]->areNSlotsAvailable(1, curTime)) {
+            // Space is available.
+            //! Enqueue this flit to protocol buffer.
+            // other temp varibles can be deleted like: t_flit
+            outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
+                                       cyclesToTicks(Cycles(1)));
+
+            // Simply send a credit back since we are not buffering
+            // this flit in the NI
+            // sendCredit(t_flit, true);
+
+            // Update stats and delete flit pointer
+            // Update here the flag to be sent to
+            // incrementStats() to update the latency
+            // for bufferless_pkts
+            // NOTE: considering only single flit packet
+            incrementStats(t_flit);
+            // m_net_ptr->m_bufferless_pkts++;
+            // m_net_ptr->m_total_bufferless_latency += latency;
+            delete t_flit;
+        } else {
+            assert(0); // should not come here
+        }
+    }
+    else {
+        assert(0); // should not come here
+    }
+}
+
 
 } // namespace garnet
 } // namespace ruby
