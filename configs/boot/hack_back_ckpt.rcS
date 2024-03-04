@@ -1,25 +1,11 @@
 #!/bin/sh
 
-#
-# This is a tricky script to understand. When run in M5, it creates
-# a checkpoint after Linux boot up, but before any benchmarks have
-# been run. By playing around with environment variables, we can
-# detect whether the checkpoint has been taken.
-#  - If the checkpoint hasn't been taken, the script allows M5 to checkpoint the system,
-# re-read this script into a new tmp file, and re-run it. On the
-# second execution of this script (checkpoint has been taken), the
-# environment variable is already set, so the script will exit the
-# simulation
-#  - When we restore the simulation from a checkpoint, we can
-# specify a new script for M5 to execute in the full-system simulation,
-# and it will be executed as if a checkpoint had just been taken.
-#
-# Author:
-#   Joel Hestness, hestness@cs.utexas.edu
-#   while at AMD Research and Advanced Development Lab
-# Date:
-#   10/5/2010
-#
+# This is YZ's modifed version of hack_back_ckpt.rcs originaly by Joel Hestness, hestness@cs.utexas.edu.
+#I modified it to be able to run with new different script after restoring from a checkpoint.
+#The key idea is to  "m5read file" twice and "bash" rather than “exec” the script
+# Demo econd new script: cd /home/gem5/parsec-benchmark; source env.sh; parsecmgmt -a run -p blackscholes  -c gcc-hooks -i simsmall  -n 2; sleep 5; m5 exit;
+# You should observe via m5term 3456:  First: old script, showing the content of  this scipt.  Second: new script, show the contents of  cd /home/gem5/parsec-benchmark; source env.sh; parsecmgmt -a run -p blackscholes  -c gcc-hooks -i simsmall  -n 2; sleep 5; m5 exit;
+#author: Yizhi Chen: yizhic@kth.se 2023-Dec-18th
 
 # Test if the RUNSCRIPT_VAR environment variable is already set
 if [ "${RUNSCRIPT_VAR+set}" != set ]
@@ -28,12 +14,16 @@ then
 	export RUNSCRIPT_VAR=1
 else
 	# We've already executed once, so we should exit
+	echo "yzzzWe've already executed once, so we should exit"
+	sleep 2
 	/sbin/m5 exit
 fi
 
+
 # Checkpoint the first execution
-echo "Checkpointing simulation..."
+echo "yzzzz42Checkpointing simulation..."
 /sbin/m5 checkpoint
+echo "yzzzz44CheckpointingDone"
 
 # Test if we previously okayed ourselves to run this script
 if [ "$RUNSCRIPT_VAR" -eq 1 ]
@@ -43,20 +33,28 @@ then
 	export RUNSCRIPT_VAR=2
 
 	# Read the script for the checkpoint restored execution
-	echo "Loading new script..."
+	echo "yzzzzzz47oading old script..."
 	/sbin/m5 readfile > /tmp/runscript
+	cat /tmp/runscript
+	echo "yzzzzzz54oading second new script..."
+	/sbin/m5 readfile > /tmp/runscript
+	cat /tmp/runscript
+	echo "yzzzzz59runing second new script..."
 	chmod 755 /tmp/runscript
 
 	# Execute the new runscript
 	if [ -s /tmp/runscript ]
 	then
-		exec /tmp/runscript
+		echo "yzzzzzz54execute newscrpt..."
+		#exec /tmp/runscript
+		bash /tmp/runscript
 	else
-		echo "Script not specified. Dropping into shell..."
+		echo "yzzzzz56Script not specified. Dropping into shell..."
 		/bin/bash
 	fi
 
 fi
-
-echo "Fell through script. Exiting..."
+sleep 1;
+echo "yzzzzzz62Fell through script. Exiting..."
+sleep 3;
 /sbin/m5 exit

@@ -75,8 +75,8 @@ Router::wakeup()
     assert(clockEdge() == curTick());
     bool isCfcTurn = CfcTurn();
     if (isCfcTurn) {
-        std::cout<<"At cycle: "<<curCycle();
-        std::cout<<" Router "<<\
+        // std::cout<<"At cycle: "<<curCycle();
+        // std::cout<<" Router "<<\
         m_id<<" make CFC"\
         <<std::endl;
         for (int inport = 0; inport < m_input_unit.size(); inport++) {

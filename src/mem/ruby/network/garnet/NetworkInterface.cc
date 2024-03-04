@@ -183,7 +183,7 @@ NetworkInterface::incrementStats(flit *t_flit)
 
     // Hops
 
-    std::cout<<" t_flit->get_route().hops_traversed: "\
+    // std::cout<<" t_flit->get_route().hops_traversed: "\
         <<  t_flit->get_route().hops_traversed << std::endl;
     m_net_ptr->increment_total_hops(t_flit->get_route().hops_traversed);
 
@@ -713,7 +713,7 @@ NetworkInterface::functionalWrite(Packet *pkt)
 
 void
 NetworkInterface::ConsumeCfcPacket(int latency){
-    std::cout << "will consume a fast transmission, after latency: " \
+    // std::cout << "will consume a fast transmission, after latency: " \
     <<latency<< std::endl;
     assert(m_net_ptr->m_cfc == 1);
     Tick curTime = clockEdge();
@@ -730,7 +730,7 @@ NetworkInterface::ConsumeCfcPacket(int latency){
 
     int vnet = t_flit->get_vnet(); // flit contains the vnet information
 
-    std::cout << "set_dequeue_time to a filt top of cfcPacketBuffer" \
+    // std::cout << "set_dequeue_time to a filt top of cfcPacketBuffer" \
         << std::endl;
 
     t_flit->set_dequeue_time(cyclesToTicks(curCycle() + Cycles(latency)));

@@ -211,14 +211,14 @@ bool InputUnit::MakeFastTransmission(int vnet)
                                      routerLatency, \
                                      interposerLinkLatency);
 
-        std::cout << "latencycompute over at vnet: "<<vnet<<std::endl;
+        // std::cout << "latencycompute over at vnet: "<<vnet<<std::endl;
 
         int dest_ni = t_flit->get_route().dest_ni;
         std::vector<NetworkInterface *> NIs=m_router->get_net_ptr()->getNIs();
-        if (t_flit->get_type() == TAIL_) {std::cout << "TAIL_";}
-        if (t_flit->get_type() == HEAD_TAIL_) {std::cout << "HEAD_TAIL_";}
-        if (t_flit->get_type() == BODY_) {std::cout << "BODY_";}
-        std::cout << std::endl;
+        // if (t_flit->get_type() == TAIL_) {std::cout << "TAIL_";}
+        // if (t_flit->get_type() == HEAD_TAIL_) {std::cout << "HEAD_TAIL_";}
+        // if (t_flit->get_type() == BODY_) {std::cout << "BODY_";}
+        // std::cout << std::endl;
 
 
         // m_cfcPacketBuffer is just a temp buffer to save t_flit
@@ -229,7 +229,7 @@ bool InputUnit::MakeFastTransmission(int vnet)
         NIs[dest_ni] -> m_cfcPacketBuffer -> insert(t_flit);
         NIs[dest_ni] -> ConsumeCfcPacket(latency);
         // enqueue this pkt in dest_ni's buffer and set a dequeue time
-        std::cout << "Mk a fast transmission at vnet: "<< vnet << std::endl;
+        // std::cout << "Mk a fast transmission at vnet: "<< vnet << std::endl;
 
         increment_credit(vcBase, true, m_router->curCycle());
         set_vc_idle(vcBase, m_router->curCycle());
