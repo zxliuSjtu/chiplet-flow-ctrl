@@ -1,11 +1,17 @@
 # Chiplet Flow Control
 ## To Build
-- `bash ./chiplet-flow-ctrl/scripts/build_garnetalone.sh` (Garnet standalone mode)
-- `bash ./chiplet-flow-ctrl/scripts/build.sh` (SE mode)
+- `scons build/Garnet_standalone/gem5.opt -j$(nproc)` (Garnet standalone mode)
+- `scons build/X86/gem5.opt -j$(nproc) PROTOCOL=MESI_Three_Level` (Full System mode)
 
 ## To Run
-- `bash ./chiplet-flow-ctrl/scripts/run_syn_traffic_distL2_MC.sh` (Garnet standalone mode)
-- `bash ./chiplet-flow-ctrl/scripts/run.sh` (SE mode)
+### 1. Garnet standalone mode
+- `bash ./chiplet-flow-ctrl/scripts/run_syn_traffic_distL2_MC.sh`
+### 2. Full System mode
+- **Run from checkpiont:** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_run_from_ckpt.sh`
+- **Run from begining/to make checkpiont :** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_checkpoint.sh`
+- **Run PARSEC without checkpoint :** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_run_parsec.sh`
+
+(Dont forget to modify the directory in .sh file)
 
 ## To Contribute
 - `bash ./chiplet-flow-ctrl/scripts/push-to-github.sh`
@@ -23,7 +29,7 @@ In Order to provide a **High-performance Deadlock-free** NoC service in situatio
 ### 2.1 NoC Topology
 Raleted files:  `/chiplet-flow-ctrl/configs/topologies/Chiplets_Mesh_distrbuteL2_MC_se.py`
 
-![baseTopology](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/baseTopology.jpg)
+![baseTopology](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/baseTopology.png)
 
 The baseline network on chip's topology composed of four 4x4 mesh chiplet and a 4x4 interposer.
 #### Connection
@@ -70,7 +76,7 @@ Use `--routing-algorithm` to control routing algorithm:
 NOTE: this routingUnit DO NOT ensure deadlock free, which will be ensured through flow control technology.
 
 ## 4. MicroArchitecture of Routers
-
+![MicroArch](https://github.com/zxliuSjtu/chiplet-flow-ctrl/blob/main/figures/MicroArch.png)
 ## Code format
 Use small Camel-Case for varibles name, use big Camel-Case for function name, like:
 - myPassword, meshRows, onChipRouter

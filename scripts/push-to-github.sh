@@ -1,12 +1,5 @@
 git add .
-git commit -m 'mem-garnet: NetworkInterface::incrementStats
+git commit -m 'mem-garnet: README
 
-main file:
-src/mem/ruby/network/garnet/NetworkInterface.cc
-/src/mem/ruby/network/garnet/InputUnit.cc
-src/mem/ruby/network/garnet/NetworkInterface.hh
-/src/mem/ruby/network/garnet/InputUnit.hh
-function:
-InputUnit::LatencyCompute(...)[finish]
-NetworkInterface::incrementStats()[modify]'
+add new figures to README'
 git push origin main
