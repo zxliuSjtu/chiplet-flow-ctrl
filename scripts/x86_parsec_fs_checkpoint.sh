@@ -1,5 +1,6 @@
+export M5_PATH=/gem5/chiplet-flow-ctrl/fs
 ./build/X86/gem5.opt \
--d m5out/checkpoints/run_no_ruby_MESI_Three_cache_script \
+-d m5out/checkpoints/run_no_ruby_MESI_Three_cache_changable_script \
 configs/deprecated/example/fs.py \
 --num-cpus=16 \
 --kernel=x86-linux-kernel-5.4.49 \

@@ -35,3 +35,5 @@ configs/dram/lowp_sweep.cfg
 .vscode
 typings
 fs
+myM5out
+outdir

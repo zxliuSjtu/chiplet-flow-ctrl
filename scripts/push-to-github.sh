@@ -1,5 +1,5 @@
 git add .
-git commit -m 'mem-garnet: README
+git commit -m 'mem-garnet: scripts
 
-add new figures to README'
+add new scripts and modify cfcturn'
 git push origin main

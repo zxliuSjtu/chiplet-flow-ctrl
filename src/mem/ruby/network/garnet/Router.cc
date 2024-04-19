@@ -83,9 +83,13 @@ Router::wakeup()
             //there are three vnet
             //should round robin
             //ft at same time is wrong
-            m_input_unit[inport]->MakeFastTransmission(0);
-            m_input_unit[inport]->MakeFastTransmission(1);
-            m_input_unit[inport]->MakeFastTransmission(2);
+            //todo:
+            //if mkfast then break
+            if (m_input_unit[inport]->MakeFastTransmission(0)){
+                break;
+            }
+            //m_input_unit[inport]->MakeFastTransmission(1);
+            //m_input_unit[inport]->MakeFastTransmission(2);
         }
     }
     // check for incoming flits

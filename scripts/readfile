@@ -1,1 +1,1 @@
-cd /;
+cd /;./threads_m5 10;./threads_m5;./threads_m5 500;./threads_m5 1000;

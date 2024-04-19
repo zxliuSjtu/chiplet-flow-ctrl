@@ -1,3 +1,4 @@
+export M5_PATH=/gem5/chiplet-flow-ctrl/fs
 ./build/X86/gem5.opt \
 -d m5out/16core \
 configs/deprecated/example/fs.py \
