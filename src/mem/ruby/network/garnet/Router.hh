@@ -89,6 +89,9 @@ class Router : public BasicRouter, public Consumer
     int get_num_outports()  { return m_output_unit.size(); }
     int get_id()            { return m_id; }
 
+    //add for cfc
+    void add_num_cfcpkt();
+
     void init_net_ptr(GarnetNetwork* net_ptr)
     {
         m_network_ptr = net_ptr;
@@ -191,6 +194,8 @@ class Router : public BasicRouter, public Consumer
     */
     int BoundaryToInterposer(int BrId);
 
+    int timeSlotType(int myRegionNum);
+
   private:
     Cycles m_latency;
     uint32_t m_virtual_networks, m_vc_per_vnet, m_num_vcs;
@@ -212,6 +217,9 @@ class Router : public BasicRouter, public Consumer
     statistics::Scalar m_sw_output_arbiter_activity;
 
     statistics::Scalar m_crossbar_activity;
+    // add for cfc
+    int m_cfc_vnet_ptr;
+    int m_cur_num_cfcpkt;
 };
 
 } // namespace garnet

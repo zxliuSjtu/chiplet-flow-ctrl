@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 4 ]; then
     echo "Usage: $0 <cfc_value> <injection_rate>"
     exit 1
 fi
@@ -10,10 +10,11 @@ fi
 cfc=$1
 injectionrate=$2
 test_id=$3
+traffic_type=$4
 # Create a new directory for each run
 timestamp=$(date +"%H%M%S")
 datastamp=$(date +"%Y%m%d")
-outdir="./myM5out/${datastamp}_test${test_id}/cfc_${cfc}_inj_${injectionrate}_${timestamp}"
+outdir="./myM5out/${datastamp}_test${test_id}/${traffic_type}/cfc_${cfc}_inj_${injectionrate}_${timestamp}"
 mkdir -p "$outdir"
 
 # "uniform_random",
@@ -35,11 +36,11 @@ configs/example/garnet_synth_traffic.py \
             --num-dirs=64 \
             --num-l2caches=64 \
             --network=garnet \
-            --router-latency=1 \
+            --router-latency=3 \
             --vcs-per-vnet=1 \
             --sim-cycles=1000000 \
             --injectionrate="$injectionrate" \
-            --synthetic=transpose \
+            --synthetic="$traffic_type" \
             --routing-algorithm=2 \
             --cfc="$cfc" > "$outdir/out.log" 2>&1
 

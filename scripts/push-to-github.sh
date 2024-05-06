@@ -1,5 +1,5 @@
 git add .
-git commit -m 'mem-garnet: scripts
+git commit -m 'mem-garnet: cfc
 
-add new scripts and modify cfcturn'
+cfc version1 allow inter-chiplet cfc'
 git push origin main

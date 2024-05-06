@@ -13,6 +13,17 @@
 
 (Dont forget to modify the directory in .sh file)
 
+## To Draw
+### 1. Draw Synthetic Traffic Latency
+#### step1: run all the synthetic traffic, output directory is /myM5out
+- `bash ./scripts/run_garnetalone_cycle.sh <test_id>`
+#### step2: draw all the synthetic traffic, output directory is /pythonOut
+- `bash ./scripts/draw_cycle.sh <test_id>`
+### 2. Draw Synthetic Traffic Saturation Throughput
+- flit_size of garnet = 128 bits
+- throughput = (received_flits_number * flit_size)/sim_seconds
+- `python ./python_scripts/plot_sat_throughput.py `
+
 ## To Contribute
 - `bash ./chiplet-flow-ctrl/scripts/push-to-github.sh`
 

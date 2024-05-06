@@ -189,11 +189,48 @@ bool InputUnit::MakeFastTransmission(int vnet)
     {
         int vcBase = vnet * m_vc_per_vnet;
         flit *t_flit;
+
         if (virtualChannels[vcBase].isEmpty())
         {
+            std::cout<<"fastTransmission fail because empty"<<std::endl;
+            return false;
+        }
+        // check the des router is ready to accept the packe
+        int desRouterId = (virtualChannels[vcBase].peekTopFlit())
+                            ->get_route().dest_router;
+        std::cout<<"desRouterId: "<<desRouterId<<std::endl;
+        int numRows = m_router->get_net_ptr()->getNumRows();
+        // get des router region
+        int desRouterRegion = \
+            m_router->RegionNumber(numRows, numRows, desRouterId);
+        std::cout<<"desRouterRegion: "<<desRouterRegion<<std::endl;
+        // check des router region is if des region
+        int desRegionType = m_router->timeSlotType(desRouterRegion);
+        std::cout<<"desRegionType: "<<desRegionType<<std::endl;
+        // if des region is not ready, return false
+
+
+
+        // return false if src/des are not on same chiplet
+        // if (desRouterId/(numRows * numRows) != \
+        //     m_router->get_id()/(numRows * numRows))
+        if (false)
+        {
+                std::cout<<"fastTransmission fail because des/src\
+                are on different chiplet"<<std::endl;
+                return false;
+        }
+        else if (desRegionType == -1)
+        {
+            std::cout<<"fastTransmission fail because desRegionType:"
+                     <<desRegionType<<std::endl;
             return false;
         }
         else {
+            // todo: found a bug! fix this
+            // even if fasttransmission failed
+            // flit still will be deleted.
+            std::cout<<"getTopFlit() from vc: "<<vcBase<<std::endl;
             t_flit = virtualChannels[vcBase].getTopFlit();
         }
 
@@ -222,12 +259,16 @@ bool InputUnit::MakeFastTransmission(int vnet)
 
 
         // m_cfcPacketBuffer is just a temp buffer to save t_flit
-
+        // just compute hops, so make input as (t_flit,0,1,0)
         for (int hops = 0; hops <= LatencyCompute(t_flit,0,1,0); hops++){
             t_flit->increment_hops();
         }
         NIs[dest_ni] -> m_cfcPacketBuffer -> insert(t_flit);
+        NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
         NIs[dest_ni] -> ConsumeCfcPacket(latency);
+        NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
+
+        m_router->add_num_cfcpkt();
         // enqueue this pkt in dest_ni's buffer and set a dequeue time
         // std::cout << "Mk a fast transmission at vnet: "<< vnet << std::endl;
 
@@ -235,6 +276,7 @@ bool InputUnit::MakeFastTransmission(int vnet)
         set_vc_idle(vcBase, m_router->curCycle());
 
         return true;
+
     }
     return false;
 }

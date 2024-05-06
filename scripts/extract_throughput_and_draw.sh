@@ -10,7 +10,7 @@ extract_data() {
 output_file=$2
 # Main script
 # Loop through each directory in m5out
-for outdir in ./myM5out/20240416_test1/*; do
+for outdir in ./myM5out/20240425_test2/*; do
     if [ -d "$outdir" ]; then
         injectionrate=$(echo "$outdir" | grep -oP '(?<=inj_)\d+\.*\d*')
         cfc=$(echo "$outdir" | grep -oP '(?<=cfc_)\d')

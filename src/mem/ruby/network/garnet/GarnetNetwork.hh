@@ -166,6 +166,7 @@ class GarnetNetwork : public Network
 
     //members related to CFC
     int m_cfc;
+    int m_max_num_cfcpkt;
 
   protected:
     // Configuration
@@ -228,6 +229,8 @@ class GarnetNetwork : public Network
     //add to support chiplet arch
     std::map<int, int> Bdry_router2Itpsr_router;
     std::map<int, int> Itpsr_router2Bdry_router;
+
+
 };
 
 inline std::ostream&

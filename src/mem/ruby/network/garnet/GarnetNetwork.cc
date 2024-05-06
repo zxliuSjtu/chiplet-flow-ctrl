@@ -107,6 +107,7 @@ GarnetNetwork::GarnetNetwork(const Params &p)
 
     // data members related to CFC
     m_cfc = p.cfc;
+    m_max_num_cfcpkt = 16;
 
     // record the bdry router and itpsr router pair by zxliu
     // for (std::vector<BasicRouter*>::const_iterator i =  p.routers.begin();
