@@ -12,6 +12,9 @@
 - **Run PARSEC without checkpoint :** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_run_parsec.sh`
 
 (Dont forget to modify the directory in .sh file)
+### 3. Docker
+gem5 Docker: https://www.gem5.org/documentation/general_docs/building#docker
+
 
 ## To Draw
 ### 1. Draw Synthetic Traffic Latency
