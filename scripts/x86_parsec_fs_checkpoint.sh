@@ -1,12 +1,13 @@
 export M5_PATH=/gem5/chiplet-flow-ctrl/fs
 ./build/X86/gem5.opt \
--d m5out/checkpoints/run_no_ruby_MESI_Three_cache_changable_script \
+-d m5out/checkpoints/16kvmCores_v2/ \
 configs/deprecated/example/fs.py \
 --num-cpus=16 \
 --kernel=x86-linux-kernel-5.4.49 \
 --disk=x86-parsec \
---mem-size=4GB \
---script=./scripts/readfile
+--mem-size=8GB \
+--cpu-type=X86KvmCPU \
+--script=configs/boot/hack_back_ckpt.rcS
 # --ruby \
 # --network=garnet \
 # --num-cpus=4 \

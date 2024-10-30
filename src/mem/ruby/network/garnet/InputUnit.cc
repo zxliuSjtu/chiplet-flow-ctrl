@@ -77,8 +77,9 @@ void
 InputUnit::wakeup()
 {
     flit *t_flit;
+    std::cout<<"InputUnit::wakeup()"<<std::endl;
     if (m_in_link->isReady(curTick())) {
-
+        std::cout<<"get a flit from link"<<std::endl;
         t_flit = m_in_link->consumeLink();
         DPRINTF(RubyNetwork, "Router[%d] Consuming:%s Width: %d Flit:%s\n",
         m_router->get_id(), m_in_link->name(),
@@ -183,41 +184,38 @@ InputUnit::resetStats()
     }
 }
 
-bool InputUnit::MakeFastTransmission(int vnet)
+bool InputUnit::MakeFastTransmission(int vc)
 {
     if (m_router->get_net_ptr()->m_cfc == 1)
     {
-        int vcBase = vnet * m_vc_per_vnet;
         flit *t_flit;
 
-        if (virtualChannels[vcBase].isEmpty())
+        if (virtualChannels[vc].isEmpty())
         {
-            std::cout<<"fastTransmission fail because empty"<<std::endl;
+            std::cout<<"fail because empty"<<std::endl;
             return false;
         }
         // check the des router is ready to accept the packe
-        int desRouterId = (virtualChannels[vcBase].peekTopFlit())
+        int desRouterId = (virtualChannels[vc].peekTopFlit())
                             ->get_route().dest_router;
-        std::cout<<"desRouterId: "<<desRouterId<<std::endl;
+        //std::cout<<"desRouterId: "<<desRouterId<<std::endl;
         int numRows = m_router->get_net_ptr()->getNumRows();
         // get des router region
         int desRouterRegion = \
             m_router->RegionNumber(numRows, numRows, desRouterId);
-        std::cout<<"desRouterRegion: "<<desRouterRegion<<std::endl;
+        //std::cout<<"desRouterRegion: "<<desRouterRegion<<std::endl;
         // check des router region is if des region
         int desRegionType = m_router->timeSlotType(desRouterRegion);
-        std::cout<<"desRegionType: "<<desRegionType<<std::endl;
+        //std::cout<<"desRegionType: "<<desRegionType<<std::endl;
         // if des region is not ready, return false
 
-
-
         // return false if src/des are not on same chiplet
-        // if (desRouterId/(numRows * numRows) != \
-        //     m_router->get_id()/(numRows * numRows))
+        /* if (desRouterId/(numRows * numRows) !=
+             m_router->get_id()/(numRows * numRows))*/
         if (false)
         {
-                std::cout<<"fastTransmission fail because des/src\
-                are on different chiplet"<<std::endl;
+                /*std::cout<<"fastTransmission fail because des/src
+                are on different chiplet"<<std::endl;*/
                 return false;
         }
         else if (desRegionType == -1)
@@ -230,8 +228,8 @@ bool InputUnit::MakeFastTransmission(int vnet)
             // todo: found a bug! fix this
             // even if fasttransmission failed
             // flit still will be deleted.
-            std::cout<<"getTopFlit() from vc: "<<vcBase<<std::endl;
-            t_flit = virtualChannels[vcBase].getTopFlit();
+            //std::cout<<"getTopFlit() from vc: "<<vcBase<<std::endl;
+            t_flit = virtualChannels[vc].getTopFlit();
         }
 
         DPRINTF(RubyNetwork, "[InputUnit::make_pkt_bufferless()] "\
@@ -241,7 +239,7 @@ bool InputUnit::MakeFastTransmission(int vnet)
 
         int chipletLinkLatency = 1;
         int interposerLinkLatency = 1;
-        int routerLatency = 1;
+        int routerLatency = 0;
 
         int latency = LatencyCompute(t_flit, \
                                      chipletLinkLatency, \
@@ -264,13 +262,79 @@ bool InputUnit::MakeFastTransmission(int vnet)
             t_flit->increment_hops();
         }
         NIs[dest_ni] -> m_cfcPacketBuffer -> insert(t_flit);
-        NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
+        //NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
         NIs[dest_ni] -> ConsumeCfcPacket(latency);
-        NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
+        //NIs[dest_ni] -> m_cfcPacketBuffer -> print(std::cout);
 
         m_router->add_num_cfcpkt();
         // enqueue this pkt in dest_ni's buffer and set a dequeue time
         // std::cout << "Mk a fast transmission at vnet: "<< vnet << std::endl;
+
+        increment_credit(vc, true, m_router->curCycle());
+        set_vc_idle(vc, m_router->curCycle());
+
+        return true;
+
+    }
+    return false;
+}
+
+bool InputUnit::MakeFastPass(int vnet)
+{
+    if (m_router->get_net_ptr()->m_fastpass == 1)
+    {
+        int vcBase = vnet * m_vc_per_vnet;
+        flit *t_flit;
+
+        if (virtualChannels[vcBase].isEmpty())
+        {
+            return false;
+        }
+        // check the des router is ready to accept the packe
+        int desRouterId = (virtualChannels[vcBase].peekTopFlit())
+                            ->get_route().dest_router;
+        std::cout<<"desRouterId: "<<desRouterId<<std::endl;
+
+        int numRows = m_router->get_net_ptr()->getNumRows();
+        // get des router region
+        int desRouterRegion = desRouterId % numRows;
+        std::cout<<"desRouterRegion: "<<desRouterRegion<<std::endl;
+        // check des router region is if des region
+        int srcRouterRegion = (m_router->get_id()) % numRows;
+        // if des region is not ready, return false
+        int slotLength = m_router->get_net_ptr()->get_slotlength();
+        int slotNum = m_router->curCycle()/slotLength;
+        // see the gem5::ruby::garnet::Router::FastpassTurn()
+        int allowedDesRegion = \
+        (srcRouterRegion + (slotNum % numRows)) % numRows;
+        std::cout<<"allowed desregion: "<<allowedDesRegion<<std::endl;
+
+        if (desRouterRegion != allowedDesRegion)
+        {
+            return false;
+        }
+        else {
+            t_flit = virtualChannels[vcBase].getTopFlit();
+        }
+
+        int chipletLinkLatency = 1;
+        int interposerLinkLatency = 1;
+        int routerLatency = 1;
+
+        int latency = LatencyCompute(t_flit, \
+                                     chipletLinkLatency, \
+                                     routerLatency, \
+                                     interposerLinkLatency);
+
+        int dest_ni = t_flit->get_route().dest_ni;
+        std::vector<NetworkInterface *> NIs=m_router->get_net_ptr()->getNIs();
+
+        for (int hops = 0; hops <= LatencyCompute(t_flit,0,1,0); hops++){
+            t_flit->increment_hops();
+        }
+        NIs[dest_ni] -> m_cfcPacketBuffer -> insert(t_flit);
+        NIs[dest_ni] -> ConsumeCfcPacket(latency);
+        m_router->add_num_cfcpkt();
 
         increment_credit(vcBase, true, m_router->curCycle());
         set_vc_idle(vcBase, m_router->curCycle());
@@ -280,6 +344,7 @@ bool InputUnit::MakeFastTransmission(int vnet)
     }
     return false;
 }
+
 
 int InputUnit::LatencyCompute \
 (flit* pFlit, int linkLatency, int routerLatency, int interposerLinkLatency)
@@ -316,6 +381,10 @@ int InputUnit::LatencyCompute \
         }
         assert(resultHops > 0);
         resultLatency = (linkLatency + routerLatency) * resultHops + 1;
+        std::cout<<"myRouterId: "<<myRouterId<<std::endl;
+        std::cout<<"destRouterId: "<<destRouterId<<std::endl;
+        std::cout<<"resultHops: "<<resultHops<<std::endl;
+        std::cout<<"resultLatency: "<<resultLatency<<std::endl;
         assert(resultLatency > 0);
         return resultLatency;
     }

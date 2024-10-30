@@ -183,8 +183,8 @@ NetworkInterface::incrementStats(flit *t_flit)
 
     // Hops
 
-    std::cout<<" t_flit->get_route().hops_traversed: "\
-        <<  t_flit->get_route().hops_traversed << std::endl;
+    /*std::cout<<" t_flit->get_route().hops_traversed: "
+        <<  t_flit->get_route().hops_traversed << std::endl;*/
     m_net_ptr->increment_total_hops(t_flit->get_route().hops_traversed);
 
 }
@@ -713,9 +713,11 @@ NetworkInterface::functionalWrite(Packet *pkt)
 
 void
 NetworkInterface::ConsumeCfcPacket(int latency){
-    std::cout << "will consume a fast transmission, after latency: " \
-    <<latency<< std::endl;
-    assert(m_net_ptr->m_cfc == 1);
+    /*std::cout << "will consume a fast transmission, after latency: "
+    <<latency<< std::endl;*/
+    assert(m_net_ptr->m_cfc ==\
+     1 || m_net_ptr->m_fastpass == \
+     1 || m_net_ptr->m_upp == 1);
     Tick curTime = clockEdge();
 
     // Check if there are flits stalling a virtual channel. Track if a
@@ -730,8 +732,8 @@ NetworkInterface::ConsumeCfcPacket(int latency){
 
     int vnet = t_flit->get_vnet(); // flit contains the vnet information
 
-    std::cout << "set_dequeue_time to a filt top of cfcPacketBuffer" \
-        << std::endl;
+    /*std::cout << "set_dequeue_time to a filt top of cfcPacketBuffer"
+        << std::endl;*/
 
     t_flit->set_dequeue_time(cyclesToTicks(curCycle() + Cycles(latency)));
 
@@ -756,17 +758,17 @@ NetworkInterface::ConsumeCfcPacket(int latency){
             // for bufferless_pkts
             // NOTE: considering only single flit packet
 
-            Tick network_delay =
+            /*Tick network_delay =
                 t_flit->get_dequeue_time() -
                 t_flit->get_enqueue_time() - cyclesToTicks(Cycles(1));
-            std::cout<<"t_flit->get_dequeue_time(): "<<\
+            std::cout<<"t_flit->get_dequeue_time(): "<<
                 t_flit->get_dequeue_time()<<std::endl;
-            std::cout<<"t_flit->get_enqueue_time(): "<<\
+            std::cout<<"t_flit->get_enqueue_time(): "<<
                 t_flit->get_enqueue_time()<<std::endl;
-            std::cout<<"cyclesToTicks(Cycles(1)): "<<\
+            std::cout<<"cyclesToTicks(Cycles(1)): "<<
                 cyclesToTicks(Cycles(1))<<std::endl;
             std::cout<<"ConsumeCfcPacket::cfc flit network_delay:"<<\
-                network_delay<<std::endl;
+                network_delay<<std::endl;*/
 
 
             incrementStats(t_flit);
@@ -779,6 +781,7 @@ NetworkInterface::ConsumeCfcPacket(int latency){
         }
     }
     else {
+        //std::cout << "cfc flit is" << t_flit->get_type() << std::endl;
         assert(0); // should not come here
     }
 }

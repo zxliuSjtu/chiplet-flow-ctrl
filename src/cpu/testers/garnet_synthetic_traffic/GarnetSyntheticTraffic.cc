@@ -292,7 +292,7 @@ GarnetSyntheticTraffic::generatePkt()
         // generate packet for virtual network 0
         requestType = MemCmd::ReadReq;
         req = std::make_shared<Request>(paddr, access_size, flags,
-                                        requestorId);
+                                            requestorId);
     } else if (injReqType == 1) {
         // generate packet for virtual network 1
         requestType = MemCmd::ReadReq;

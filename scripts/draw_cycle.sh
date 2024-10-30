@@ -5,7 +5,7 @@ timestamp=$(date +%Y%m%d)
 for traffic_type in "${traffic_types[@]}"; do
     bash ./scripts/extract_latency_and_draw.sh \
     "$test_id" \
-    ./myM5out/${timestamp}_test"$test_id"/"$traffic_type"/output.png \
+    ./myM5out/${timestamp}_mesh"$test_id"/"$traffic_type"/output.png \
     "$traffic_type" \
     "$timestamp"
 done

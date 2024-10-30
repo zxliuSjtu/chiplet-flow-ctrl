@@ -1,12 +1,5 @@
 #!/bin/sh
 
-# This is YZ's modifed version of hack_back_ckpt.rcs originaly by Joel Hestness, hestness@cs.utexas.edu.
-#I modified it to be able to run with new different script after restoring from a checkpoint.
-#The key idea is to  "m5read file" twice and "bash" rather than “exec” the script
-# Demo econd new script: cd /home/gem5/parsec-benchmark; source env.sh; parsecmgmt -a run -p blackscholes  -c gcc-hooks -i simsmall  -n 2; sleep 5; m5 exit;
-# You should observe via m5term 3456:  First: old script, showing the content of  this scipt.  Second: new script, show the contents of  cd /home/gem5/parsec-benchmark; source env.sh; parsecmgmt -a run -p blackscholes  -c gcc-hooks -i simsmall  -n 2; sleep 5; m5 exit;
-#author: Yizhi Chen: yizhic@kth.se 2023-Dec-18th
-
 # Test if the RUNSCRIPT_VAR environment variable is already set
 if [ "${RUNSCRIPT_VAR+set}" != set ]
 then
@@ -21,9 +14,9 @@ fi
 
 
 # Checkpoint the first execution
-echo "yzzzz42Checkpointing simulation..."
+echo "[ZXLIU]:Checkpointing simulation..."
 /sbin/m5 checkpoint
-echo "yzzzz44CheckpointingDone"
+echo "[ZXLIU]:Checkpointing Done"
 
 # Test if we previously okayed ourselves to run this script
 if [ "$RUNSCRIPT_VAR" -eq 1 ]
@@ -33,28 +26,28 @@ then
 	export RUNSCRIPT_VAR=2
 
 	# Read the script for the checkpoint restored execution
-	echo "yzzzzzz47oading old script..."
+	echo "[ZXLIU]:loading old script..."
 	/sbin/m5 readfile > /tmp/runscript
 	cat /tmp/runscript
-	echo "yzzzzzz54oading second new script..."
+	echo "[ZXLIU]:loading new script..."
 	/sbin/m5 readfile > /tmp/runscript
 	cat /tmp/runscript
-	echo "yzzzzz59runing second new script..."
+	echo "[ZXLIU]:runing new script..."
 	chmod 755 /tmp/runscript
 
 	# Execute the new runscript
 	if [ -s /tmp/runscript ]
 	then
-		echo "yzzzzzz54execute newscrpt..."
+		echo "[ZXLIU]:execute new script..."
 		#exec /tmp/runscript
 		bash /tmp/runscript
 	else
-		echo "yzzzzz56Script not specified. Dropping into shell..."
+		echo "[ZXLIU]:Script not specified. Dropping into shell..."
 		/bin/bash
 	fi
 
 fi
 sleep 1;
-echo "yzzzzzz62Fell through script. Exiting..."
+echo "[ZXLIU]: Fell through script. Exiting..."
 sleep 3;
 /sbin/m5 exit

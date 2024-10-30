@@ -9,6 +9,9 @@
 ### 2. Full System mode
 - **Run from checkpiont:** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_run_from_ckpt.sh`
 - **Run from begining/to make checkpiont :** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_checkpoint.sh`
+
+note: remember to use: /gem5/chiplet-flow-ctrl/configs/boot/hack_back_ckpt.rcS as your script when you make a checkpoint, this will help you to update new script when you run from this checkpoint, instead of the old script when making the checkpiont.
+
 - **Run PARSEC without checkpoint :** `bash ./chiplet-flow-ctrl/scripts/x86_parsec_fs_run_parsec.sh`
 
 (Dont forget to modify the directory in .sh file)

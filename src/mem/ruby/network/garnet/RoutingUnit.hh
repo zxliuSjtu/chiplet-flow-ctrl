@@ -81,7 +81,7 @@ class RoutingUnit
     // Returns true if vnet is present in the vector
     // of vnets or if the vector supports all vnets.
     bool supportsVnet(int vnet, std::vector<int> sVnets);
-
+    int get_map_d2i(PortDirection dirn) { return m_inports_dirn2idx[dirn]; }
 
   private:
     Router *m_router;

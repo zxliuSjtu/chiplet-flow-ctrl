@@ -33,13 +33,13 @@ test_id = args.test_id
 traffic_type = args.traffic_type
 
 # 读取文件夹路径
-read_dir_template = "./myM5out/{test_date}_test{test_id}/{traffic_type}/"
+read_dir_template = "./myM5out/{test_date}_mesh{test_id}/{traffic_type}/"
 read_dir = read_dir_template.format(
     test_date=test_date, test_id=test_id, traffic_type=traffic_type
 )
 
 # 创建输出文件夹路径
-save_dir_template = "./pythonOut/{test_date}_test{test_id}/{traffic_type}/"
+save_dir_template = "./pythonOut/{test_date}_mesh{test_id}/{traffic_type}/"
 save_dir = save_dir_template.format(
     test_date=test_date, test_id=test_id, traffic_type=traffic_type
 )
@@ -48,9 +48,9 @@ os.makedirs(save_dir, exist_ok=True)
 
 # File paths
 read_files = [
-    os.path.join(read_dir, "cfc0.txt"),
-    os.path.join(read_dir, "cfc1.txt"),
-    os.path.join(read_dir, "cfc2.txt"),
+    os.path.join(read_dir, "BuffeRS.txt"),
+    os.path.join(read_dir, "FastPass.txt"),
+    os.path.join(read_dir, "noFlowControl.txt"),
 ]
 
 # Initialize lists to store injection rates and latency values for each file
@@ -70,30 +70,33 @@ for i, file_path in enumerate(read_files):
         latency_values[i].append(float(parts[1]))
 
 # Plotting the data
-plt.figure(figsize=(10, 5))  # Adjust figure size if needed
+plt.figure(figsize=(8.5, 5.95))  # Adjust figure size if needed, rate 0.7
 for i in range(len(read_files)):
     marker_styles = ["o", "s", "^", "x"]  # Define marker styles
-    lines_tyle = ["-", "--", "-.", ":"]
-    labels = ["UPP", "CFC", "FastPass", "MTR"]
+    lines_tyle = ["--", "-", "-.", ":"]
+    labels = ["BuffeRS", "FastPass", "noFlowControl", "MTR"]
     plt.plot(
         injection_rates[i],
         latency_values[i],
         marker=marker_styles[i],
-        markersize=6,
-        linewidth=2,
+        markersize=12,
+        linewidth=5,
         linestyle=lines_tyle[i],
         label=labels[i],
     )
 
 # Adding labels and title
-plt.xlabel("Injection Rate (flits/node/cycle)", fontsize=14)
-plt.ylabel("Average Packet Latency (Cycles)", fontsize=14)
-plt.title(traffic_type, fontsize=14)
-
+title_string = traffic_type.replace("_", " ")
+title_string = title_string.capitalize()
+plt.xlabel("Injection Rate (flits/node/cycle)", fontsize=20)
+plt.ylabel("Average Packet Latency (Cycles)", fontsize=20)
+plt.title(title_string, fontsize=25)
+plt.ylim(10, 90)
+plt.xlim(0.2, 0.65)
 # Display the legend
-plt.legend(fontsize=14)
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
+plt.legend(fontsize=20)
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
 # Display the plot
 # plt.gca().xaxis.set_major_locator(MultipleLocator(0.01))  # Adjust the step value as needed
 # plt.gca().yaxis.set_major_locator(MultipleLocator(50000))  # Adjust the step value as needed

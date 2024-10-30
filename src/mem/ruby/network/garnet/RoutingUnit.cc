@@ -211,7 +211,7 @@ RoutingUnit::outportComputeXY(RouteInfo route,
 {
     PortDirection outport_dirn = "Unknown";
 
-    [[maybe_unused]] int num_rows = m_router->get_net_ptr()->getNumRows();
+    int num_rows = m_router->get_net_ptr()->getNumRows();
     int num_cols = m_router->get_net_ptr()->getNumCols();
     assert(num_rows > 0 && num_cols > 0);
 
@@ -232,33 +232,103 @@ RoutingUnit::outportComputeXY(RouteInfo route,
     // already checked that in outportCompute() function
     assert(!(x_hops == 0 && y_hops == 0));
 
-    if (x_hops > 0) {
-        if (x_dirn) {
-            assert(inport_dirn == "Local" || inport_dirn == "West");
-            outport_dirn = "East";
-        } else {
-            assert(inport_dirn == "Local" || inport_dirn == "East");
-            outport_dirn = "West";
-        }
-    } else if (y_hops > 0) {
-        if (y_dirn) {
-            // "Local" or "South" or "West" or "East"
-            assert(inport_dirn != "North");
+    if (x_hops == 0)
+    {
+        if (y_dirn > 0)
             outport_dirn = "North";
-        } else {
-            // "Local" or "North" or "West" or "East"
-            assert(inport_dirn != "South");
+        else
             outport_dirn = "South";
+    }
+    else if (y_hops == 0)
+    {
+        if (x_dirn > 0)
+            outport_dirn = "East";
+        else
+            outport_dirn = "West";
+    }
+    else
+    {
+        // whichever router has more free VCs route there
+        int rand = random() % 2;
+        // int rand = 1;
+        Router *router_Est, *router_Wst, *router_South, *router_Nrth;
+        if (x_dirn && y_dirn) {// Quadrant I
+            // check for routers in both 'East' and 'North'
+            // direction
+            router_Est = m_router->get_net_ptr()->\
+                get_upstreamrouter( "East", m_router->get_id());
+            router_Nrth = m_router->get_net_ptr()->\
+                get_upstreamrouter( "North", m_router->get_id());
+            // caution: 'dirn_' is the direction of inport of
+            // downstream router
+            int freeVC_East = router_Est->get_numFreeVC("West");
+            int freeVC_North = router_Nrth->get_numFreeVC("South");
+
+            if (freeVC_East > freeVC_North)
+                outport_dirn = "East";
+            else if (freeVC_North > freeVC_East)
+                outport_dirn = "North";
+            else
+                outport_dirn = rand ? "East" : "North";
+
         }
-    } else {
-        // x_hops == 0 and y_hops == 0
-        // this is not possible
-        // already checked that in outportCompute() function
-        panic("x_hops == y_hops == 0");
+        else if (!x_dirn && y_dirn) {// Quadrant II
+
+            router_Wst = m_router->get_net_ptr()->\
+                get_upstreamrouter( "West", m_router->get_id());
+            router_Nrth = m_router->get_net_ptr()->\
+                get_upstreamrouter( "North", m_router->get_id());
+
+            int freeVC_West = router_Wst->get_numFreeVC("East");
+            int freeVC_North = router_Nrth->get_numFreeVC("South");
+
+            if (freeVC_North > freeVC_West)
+                outport_dirn = "North";
+            else if (freeVC_West > freeVC_North)
+                outport_dirn = "West";
+            else
+                outport_dirn = rand ? "West" : "North";
+
+        }
+        else if (!x_dirn && !y_dirn) {// Quadrant III
+
+            router_Wst = m_router->get_net_ptr()->\
+                get_upstreamrouter( "West", m_router->get_id());
+            router_South = m_router->get_net_ptr()->\
+                get_upstreamrouter( "South", m_router->get_id());
+
+            int freeVC_West = router_Wst->get_numFreeVC("East");
+            int freeVC_South = router_South->get_numFreeVC("North");
+
+            if (freeVC_South > freeVC_West)
+                outport_dirn = "South";
+            else if (freeVC_West > freeVC_South)
+                outport_dirn = "West";
+            else
+                outport_dirn = rand ? "West" : "South";
+        }
+        else {// Quadrant IV
+
+            router_Est = m_router->get_net_ptr()->\
+                get_upstreamrouter( "East", m_router->get_id());
+            router_South = m_router->get_net_ptr()->\
+                get_upstreamrouter( "South", m_router->get_id());
+
+            int freeVC_East = router_Est->get_numFreeVC("West");
+            int freeVC_South = router_South->get_numFreeVC("North");
+
+            if (freeVC_South > freeVC_East)
+                outport_dirn = "South";
+            else if (freeVC_East > freeVC_South)
+                outport_dirn = "East";
+            else
+                outport_dirn = rand ? "East" : "South";
+        }
     }
 
     return m_outports_dirn2idx[outport_dirn];
 }
+
 
 //A new XY routing for 4x4 mesh chiplets
 //and 4x4 interposer id is fixed for simple

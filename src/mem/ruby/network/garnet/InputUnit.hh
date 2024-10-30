@@ -74,6 +74,7 @@ class InputUnit : public Consumer
      * @param vnet the vnet id of this inport unit
     */
     bool MakeFastTransmission(int vnet);
+    bool MakeFastPass(int vnet);
 
     /**
      * @brief to compute latncy of fast transmission
@@ -179,6 +180,22 @@ class InputUnit : public Consumer
     {
         m_credit_link = credit_link;
     }
+
+    inline int
+    get_numFreeVC(PortDirection dirn_)
+    {
+        assert(dirn_ == m_direction);
+        int freeVC = 0;
+        // since we always use vnet=0
+        for (int vc_=0; vc_ < m_vc_per_vnet; ++vc_) {
+             if (virtualChannels[vc_].isEmpty())
+                freeVC++;
+        }
+    //        cout << "m_vc_per_vnet: " << m_vc_per_vnet << endl;
+    //        cout << "freeVC: " << freeVC << endl;
+        return freeVC;
+    }
+
 
     double get_buf_read_activity(unsigned int vnet) const
     { return m_num_buffer_reads[vnet]; }

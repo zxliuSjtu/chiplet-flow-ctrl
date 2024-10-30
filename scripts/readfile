@@ -1,1 +1,1 @@
-cd /;./threads_m5 10;./threads_m5;./threads_m5 500;./threads_m5 1000;
+cd ..; echo " ZXLIU cd.. done "; echo " ZXLIU run readfile done "; m5 checkpoint; echo " ZXLIU make checkpoint done "; sleep 5; m5 exit;

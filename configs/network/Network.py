@@ -180,6 +180,31 @@ def define_options(parser):
         default=0,
         help="to enable Chiplet flow Control",
     )
+    parser.add_argument(
+        "--slotLength",
+        action="store",
+        type=int,
+        default=20,
+        help="cycles between two fast transmissions",
+    )
+
+    # add arguments for fastpass
+    parser.add_argument(
+        "--fastpass",
+        action="store",
+        type=int,
+        default=0,
+        help="to enable fastpass",
+    )
+
+    # add arguments for fastpass
+    parser.add_argument(
+        "--upp",
+        action="store",
+        type=int,
+        default=0,
+        help="to enable upp",
+    )
 
 
 def create_network(options, ruby):
@@ -230,6 +255,9 @@ def init_network(options, network, InterfaceClass):
         network.routing_algorithm = options.routing_algorithm
         network.garnet_deadlock_threshold = options.garnet_deadlock_threshold
         network.cfc = options.cfc
+        network.fastpass = options.fastpass
+        network.upp = options.upp
+        network.slotLength = options.slotLength
 
         # Create Bridges and connect them to the corresponding links
         for intLink in network.int_links:

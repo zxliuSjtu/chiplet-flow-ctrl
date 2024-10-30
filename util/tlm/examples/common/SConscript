@@ -30,12 +30,12 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Import('env')
+Import("env")
 
 env = env.Clone()
 
 objs = []
-objs += env.Object('cli_parser.cc')
-objs += env.Object('report_handler.cc')
+objs += env.Object("cli_parser.cc")
+objs += env.Object("report_handler.cc")
 
-Return('objs')
+Return("objs")

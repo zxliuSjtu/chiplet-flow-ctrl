@@ -1,5 +1,5 @@
 git add .
 git commit -m 'mem-garnet: cfc
 
-cfc version1 allow inter-chiplet cfc'
+cfc single die-BuffeRS final version'
 git push origin main

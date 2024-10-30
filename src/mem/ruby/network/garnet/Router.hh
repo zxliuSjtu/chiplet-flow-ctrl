@@ -143,6 +143,7 @@ class Router : public BasicRouter, public Consumer
 
     bool functionalRead(Packet *pkt, WriteMask &mask);
     uint32_t functionalWrite(Packet *);
+    int get_numFreeVC(PortDirection dirn_);
 
     /**
     * @brief to determine wakeup routers satisfying non-overlap paths
@@ -154,6 +155,9 @@ class Router : public BasicRouter, public Consumer
     * for fast flow control transmission.
     */
     bool CfcTurn();
+
+    bool FastpassTurn();
+    bool UppTurn();
 
     /**
     * @brief to determine what region dose a router belongs to.
@@ -220,6 +224,7 @@ class Router : public BasicRouter, public Consumer
     // add for cfc
     int m_cfc_vnet_ptr;
     int m_cur_num_cfcpkt;
+    std::vector<std::vector<int>> m_vTimeSlot;
 };
 
 } // namespace garnet

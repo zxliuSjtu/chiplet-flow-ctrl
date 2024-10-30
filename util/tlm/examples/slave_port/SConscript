@@ -30,13 +30,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Import('env')
-Import('deps')
+Import("env")
+Import("deps")
 
 env = env.Clone()
 
-src = [File('main.cc'), File('sc_target.cc')]
+src = [File("main.cc"), File("sc_target.cc")]
 
-bin = env.Program('gem5.sc', src + deps)
+bin = env.Program("gem5.sc", src + deps)
 
-Return('bin')
+Return("bin")

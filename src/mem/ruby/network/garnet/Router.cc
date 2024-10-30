@@ -59,6 +59,22 @@ Router::Router(const Params &p)
     m_output_unit.clear();
     m_cfc_vnet_ptr = 0;//update in rr-fashion
     m_cur_num_cfcpkt = 0;
+    m_vTimeSlot = {
+            {0, 1, 3, 6},
+            {1, 2, 4, 7},
+            {3, 4, 5, 8},
+            {6, 7, 8, 9}
+        };
+    // m_vTimeSlot = {
+    //     {0, 1, 3, 6, 10, 15, 21, 28},
+    //     {1, 2, 4, 7, 11, 16, 22, 29},
+    //     {3, 4, 5, 8, 12, 17, 23, 30},
+    //     {6, 7, 8, 9, 13, 18, 24, 31},
+    //     {10, 11, 12, 13, 14, 19, 25, 32},
+    //     {15, 16, 17, 18, 19, 20, 26, 33},
+    //     {21, 22, 23, 24, 25, 26, 27, 34},
+    //     {28, 29, 30, 31, 32, 33, 34, 35}
+    // };
 }
 
 void
@@ -70,18 +86,45 @@ Router::init()
     crossbarSwitch.init();
 }
 
+int
+Router::get_numFreeVC(PortDirection dirn_) {
+    // Caution: This 'dirn_' is the direction of inport
+    // of downstream router...
+    assert(dirn_ != "Local");
+    int inport_id = routingUnit.get_map_d2i(dirn_); // ahh.. this is wrong!
+    return (m_input_unit[inport_id]->get_numFreeVC(dirn_));
+}
+
 void
 Router::wakeup()
 {
     //std::cout<<"enter 0"<<std::endl;
     DPRINTF(RubyNetwork, "Router %d woke up\n", m_id);
+
+    // check for incoming flits
+    for (int inport = 0; inport < m_input_unit.size(); inport++) {
+        m_input_unit[inport]->wakeup();
+        std::cout<<"vc state: "<<\
+        m_input_unit[inport]->isReady(0,curTick())<<\
+        m_input_unit[inport]->isReady(1,curTick())<<\
+        m_input_unit[inport]->isReady(2,curTick())<<\
+        m_input_unit[inport]->isReady(3,curTick())<<\
+        std::endl;
+    }
+    std::cout<<std::endl;
     assert(clockEdge() == curTick());
     bool isCfcTurn = CfcTurn();
-    bool sendCfc = false;
+
+    int sendCfc = 0;
+    bool sendFastpass = false;
     if (isCfcTurn) {
-        //std::cout<<"enter 1"<<std::endl;
+        std::cout<<"router "\
+        <<m_id<< "wakeup as cfc, at cycle: "\
+        <<curCycle()<<std::endl;
+        std::cout<<"m_input_unit.size(): "\
+        <<m_input_unit.size()<<std::endl;
         for (int inport = m_input_unit.size()-1; inport >= 0; inport--) {
-            std::cout<<"check inport: "<<inport<<std::endl;
+            //std::cout<<"check inport: "<<inport<<std::endl;
             // loop all inports and all vcs
             // find a ready cfc pkt
             // if find one then break
@@ -90,19 +133,26 @@ Router::wakeup()
                 //std::cout<<"enter 2"<<std::endl;
                 //std::cout<<"m_cfc_vnet_ptr"<<m_cfc_vnet_ptr<<std::endl;
                 //std::cout<<"inport"<<inport<<std::endl;
-                while (m_cfc_vnet_ptr < m_virtual_networks){
-                    std::cout<<"check vnet: "<<m_cfc_vnet_ptr<<std::endl;
+                //use vnet ptr as a vc ptr
+                while (m_cfc_vnet_ptr < get_vc_per_vnet()){
+                    std::cout<<"m_virtual_channels: "\
+                    <<m_virtual_networks<<std::endl;
+                    std::cout<<"check vc: "<<m_cfc_vnet_ptr<<std::endl;
+
                     if (m_input_unit[inport]->\
                         MakeFastTransmission(m_cfc_vnet_ptr)){
                         //std::cout<<"enter 3"<<std::endl;
                         //return false if vc is empty
                         //return false if des router is not des region
                         //return false if src/des are not on same chiplet
-                        sendCfc = true;
+                        std::cout<<"CFC SEND"<<std::endl;
+                        std::cout<<"number of vn: "\
+                        <<m_virtual_networks<<std::endl;
+                        sendCfc++;
                         std::cout<<"At cycle: "<<curCycle();
-                        std::cout<<" Router "<<\
+                        std::cout<<" Router "<<
                         m_id<<" make CFC"<<std::endl;
-                        std::cout<<"at vnet:"<<m_cfc_vnet_ptr<<std::endl;
+                        std::cout<<"at vc:"<<m_cfc_vnet_ptr<<std::endl;
                         std::cout<<"at inport:"<<inport<<std::endl;
                         break;
                     }
@@ -115,7 +165,7 @@ Router::wakeup()
             }
             //std::cout<<"out 2"<<std::endl;
 
-            if (sendCfc){
+            if (sendCfc > 4){
                 break;
             }
 
@@ -127,10 +177,38 @@ Router::wakeup()
         //     m_cfc_vnet_ptr = 0;
         // }
     }
-    // check for incoming flits
-    for (int inport = 0; inport < m_input_unit.size(); inport++) {
-        m_input_unit[inport]->wakeup();
+
+    if (FastpassTurn()){
+        std::cout<<"router "\
+        <<m_id<< "wakeup as fastpass, at cycle: "\
+        <<curCycle()<<std::endl;
+        std::cout<<"FASTPASS WAKEUP"<<std::endl;
+        for (int inport = m_input_unit.size()-1; inport >= 0; inport--) {
+            //we can reuse the cfc_vnet_ptr
+            while (m_cfc_vnet_ptr < m_virtual_networks){
+                if (m_input_unit[inport]->\
+                    MakeFastPass(m_cfc_vnet_ptr)){
+                    std::cout<<"FASTPASS SEND"<<std::endl;
+                    std::cout<<"At cycle: "<<curCycle();
+                    std::cout<<" Router "<<
+                    m_id<<" make FASTPASSS"<<std::endl;
+                    std::cout<<"at vnet:"<<m_cfc_vnet_ptr<<std::endl;
+                    std::cout<<"at inport:"<<inport<<std::endl;
+                    sendFastpass = true;
+                    break;
+                }
+                else{
+                    m_cfc_vnet_ptr++;
+                }
+            }
+                m_cfc_vnet_ptr = 0;
+
+            if (sendFastpass){
+                break;
+            }
+        }
     }
+
 
     // check for incoming credits
     // Note: the credit update is happening before SA
@@ -396,9 +474,9 @@ Router::CfcTurn()
 
     // total region number is same as number of rows
     // int totalRegionNum = numRows;
-    // std::cout<<"myID: "<<myId<<std::endl;
+    //std::cout<<"myID: "<<myId<<std::endl;
     int myRegionNum = RegionNumber(numRows, numRows, myOnchipId);
-    std::cout<<"myID and myRegionNum: "<<myId<<" / "<<myRegionNum<<std::endl;
+    //std::cout<<"myID and myRegionNum: "<<myId<<" / "<<myRegionNum<<std::endl;
 
     if (get_net_ptr()->m_cfc == 1){
         //
@@ -411,10 +489,58 @@ Router::CfcTurn()
             //std::cout<<std::endl;
         }
     }
-    std::cout<<"at cycle: "<<curCycle();
-    std::cout<<" router "<<myId<<" is checking cfcturn. Result: ";
-    std::cout<<result<<std::endl;
+    //std::cout<<"at cycle: "<<curCycle();
+    //std::cout<<" router "<<myId<<" is checking cfcturn. Result: ";
+    //std::cout<<result<<std::endl;
     return result;
+}
+
+bool
+Router::FastpassTurn(){
+    if (get_net_ptr()->m_fastpass == 0){
+        return false;
+    }
+    bool result = false;
+    int numRows = get_net_ptr()->getNumRows();
+    int numCols = numRows;
+    assert(numRows == numCols);
+    int myId = get_id();
+        if (myId >= 64)
+    {
+        return false;
+    }
+    //std::cout<<std::endl;
+    //std::cout<<"myID: "<<myId<<std::endl;
+    int myOnchipId = myId % (numRows * numRows);
+    // each row is a region in fastpass
+    int myRegionNum = myOnchipId % numRows;
+    //std::cout<<"myRegionNum: "<<myRegionNum<<std::endl;
+    // slotLength is the K in fastpass paper
+    int slotLength = get_net_ptr()->get_slotlength();
+    int slotNum = curCycle()/slotLength;
+    if (curCycle() % slotLength != 0){
+        return false;
+    }
+    // details in fastpass paper figure 1
+    int routerBias = slotNum / numRows;
+    int fpRouterRow = myRegionNum;
+    // 0->1, 1->2, 2->3, 3->0
+    int fpRouterCol = (routerBias + myRegionNum) % numRows;
+    //std::cout<<"routerBias: "<<routerBias<<std::endl;
+
+    if (get_net_ptr()->m_fastpass == 1){
+        if (myId == fpRouterRow + fpRouterCol * numRows){
+            //std::cout<<"At slot: "<<slotNum<<" ,router "<<myId;
+            //std::cout<<"is fastpass turn"<<std::endl;
+            result = true;
+        }
+    }
+    return result;
+}
+
+bool
+Router::UppTurn(){
+    return false;
 }
 
 /**
@@ -547,15 +673,7 @@ int Router::timeSlotType(int myRegionNum){
     assert(myRegionNum >= 0);
     assert(myRegionNum <= get_net_ptr()->getNumRows());
 
-    std::vector<std::vector<int>> vTimeSlot;
-    vTimeSlot = {
-            {0, 1, 2, 4},
-            {1, 3, 5, 7},
-            {2, 5, 6, 8},
-            {4, 7, 8, 9}
-        };
-
-    int slotLength = 80;
+    int slotLength = get_net_ptr()->get_slotlength();
     if (curCycle() % slotLength != 0){
         return -1;
     }
@@ -566,9 +684,9 @@ int Router::timeSlotType(int myRegionNum){
     // find current des and src region
     int curDesRegion = -1;
     int curSrcRegion = -1;
-    for (int i = 0; i < vTimeSlot.size(); ++i) {
-        for (int j = 0; j < vTimeSlot[i].size(); ++j) {
-            if (vTimeSlot[i][j] == timeSlotNum) {
+    for (int i = 0; i < m_vTimeSlot.size(); ++i) {
+        for (int j = 0; j < m_vTimeSlot[i].size(); ++j) {
+            if (m_vTimeSlot[i][j] == timeSlotNum) {
                 curDesRegion = i;
                 curSrcRegion = j;
             }
@@ -581,25 +699,26 @@ int Router::timeSlotType(int myRegionNum){
     std::cout<<"allowed curSrcRegion:"<<curSrcRegion;
     std::cout<<std::endl;
 
-    if (curDesRegion == myRegionNum || curSrcRegion == myRegionNum ){
-
-        if (curSrcRegion == curDesRegion) {
-            return 0;
-            //means this a intra-region transmission slot
-            //at this slot,this router can be both des and src
-        }
-        else if (curDesRegion == myRegionNum) {
-            return 1;
-            //at this slot,this router can be des
-        }
-        else if (curSrcRegion == myRegionNum){
-            return 2;
-            //at this slot,this router can be src
-        }
+    if (curDesRegion == myRegionNum || curSrcRegion == myRegionNum){
+        // if (curSrcRegion == curDesRegion) {
+        //     return 0;
+        //     //means this a intra-region transmission slot
+        //     //at this slot,this router can be both des and src
+        // }
+        // else if (curDesRegion == myRegionNum) {
+        //     return 1;
+        //     //at this slot,this router can be des
+        // }
+        // else if (curSrcRegion == myRegionNum){
+        //     return 2;
+        //     //at this slot,this router can be src
+        // }
+        return 1;
     }
     else{
         return -1;
     }
+    return -1;
 
 }
 
